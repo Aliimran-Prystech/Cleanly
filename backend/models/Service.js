@@ -1,13 +1,13 @@
 const mongoose = require('mongoose');
 
-const serviceSchema = new Mongoose.schema({
-  name: { 
-    type: String, 
-    required: true, 
-    enum: ['Standard', 'Deep', 'Move In-Out'] 
+const serviceSchema = new mongoose.Schema({
+  baseTypes: {
+    standard: { type: Number, required: true, default: 80 },
+    deep: { type: Number, required: true, default: 140 },
+    moveInOut: { type: Number, required: true, default: 200 }
   },
-    costPerBedroom: { type: Number, required: true, default: 50 },
-    costPerBathroom: { type: Number, required: true, default: 60 },
+    perRoomRate: { type: Number, required: true, default: 50 },
+    perBathRate: { type: Number, required: true, default: 60 },
     addons: [{
         name: { type: String, required: true },
         price: { type: Number, required: true }

@@ -1,6 +1,6 @@
 const mongoose = require ('mongoose');
 
-const BookingSchema = new Mongoose.schema({
+const BookingSchema = new mongoose.Schema({
     customerName: {type: String, required: true},
     customerEmail: {type: String, required: true},
     customerNum: {type: Number, required: true},
