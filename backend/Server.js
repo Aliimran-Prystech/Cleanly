@@ -11,6 +11,8 @@ app.use(express.json());
 
 const User = require('./models/User');
 const bookingRoutes = require('./routes/bookingRoutes');
+const serviceRoutes = require('./routes/serviceRoutes');
+const cleanerRoutes = require('./routes/cleanerRoutes');
 const { verifyToken, JWT_SECRET } = require('./middleware/auth');
 
 const MONGO_URI = process.env.MONGO_URI;
@@ -67,6 +69,8 @@ app.post('/api/auth/login', async (req, res) => {
 });
 
 app.use('/api/bookings', bookingRoutes);
+app.use('/api/services', serviceRoutes);
+app.use('/api/cleaners', cleanerRoutes);
 
 const PORT = process.env.PORT;
 app.listen(PORT, () => {
