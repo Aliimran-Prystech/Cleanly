@@ -21,7 +21,7 @@ const Testomonial = () => {
     {
       id: 3,
       name: "Samantha",
-      role: "UX Designer, CreativeCo",
+      role: "Physical Therapist, Manhattan",
       quote:
         "They did such a good job. Whether you want to give a unique gift or have your own home cleaned, Maid for you provides a large range of top-notch services that I highly recommend to anyone.",
       rating: 4,
