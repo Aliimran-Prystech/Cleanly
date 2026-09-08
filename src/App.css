@@ -1,0 +1,186 @@
+.cleanly-navbar {
+  background-color: #0f4850;
+  /* padding: 15px 0; */
+}
+
+.cleanly-navbar .navbar-brand {
+  color: white;
+  font-size: 26px;
+  font-weight: 700;
+}
+
+.cleanly-navbar .nav-link {
+  color: rgba(255, 255, 255, 0.85);
+  margin-right: 15px;
+}
+
+.cleanly-navbar .nav-link:hover {
+  color: white;
+}
+
+.hero-image {
+  height: 600px;
+  object-fit: cover;
+  filter: brightness(0.65);
+}
+
+.hero-caption {
+  bottom: 30%;
+}
+
+.hero-caption h1 {
+  font-size: 3.5rem;
+  font-weight: 700;
+  color: white;
+}
+
+.hero-caption p {
+  font-size: 1.2rem;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .hero-image {
+    height: 450px;
+  }
+
+  .hero-caption {
+    bottom: 20%;
+  }
+
+  .hero-caption h1 {
+    font-size: 2rem;
+  }
+
+  .hero-caption p {
+    font-size: 1rem;
+  }
+}
+
+.our-client {
+  padding: 30px 0;
+  text-align: center;
+  border-bottom: 2px solid #d0f0f4;
+  background-color: #fff;
+}
+
+.our-client span {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  letter-spacing: 1.5px;
+  color: #888;
+  margin-bottom: 20px;
+}
+
+
+.our-client ul {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+  display: flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  align-items: center;
+  gap: 30px;
+}
+
+
+.our-client ul li {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+
+.our-client ul li img {
+  max-height: 40px;
+  width: auto;
+  opacity: 0.7;
+  filter: grayscale(100%);
+  transition: opacity 0.3s ease, filter 0.3s ease;
+}
+
+
+.our-client ul li img:hover {
+  opacity: 2;
+  filter: grayscale(0%);
+}
+
+.howItWorks-main-block {
+  padding: 80px 0;
+  text-align: center;
+  background-color: #fff;
+}
+
+.howItWorks .main-block {
+  padding: 0px 80px;
+}
+
+.howItWorks span {
+  color: #45c3d3;
+  border-bottom: 4px solid #45c3d3;
+  word-spacing: 2px;
+}
+
+.howItWorks p {
+  color: #8b9aab;
+  margin-top: 2rem;
+  font-size: 15px;
+}
+
+.icon_section3 {
+  margin-bottom: 0px;
+}
+
+.howItWorks-section-p {
+  color: #8b9aab;
+}
+
+.testomonial {
+  background-color: #f6fbfc;
+}
+
+.testomonial h2 {
+  font-size: 58px;
+  color: #3f4B5E;
+  margin: 0px 0px 30px;
+}
+
+.testomonial h2 span {
+  color: #45c3d3;
+  border-bottom: 4px solid #45c3d3;
+  word-spacing: 2px;
+}
+
+.testomonial p {
+  color: #8b9aab;
+}
+
+
+.testimonial-section {
+  overflow: hidden;
+}
+
+.testimonial-card {
+  position: relative;
+  margin-top: 45px;
+  transition: transform 0.2s ease-in-out;
+}
+
+.testimonial-card:hover {
+  transform: translateY(-5px);
+}
+
+.testimonial-avatar {
+  width: 90px;
+  height: 90px;
+  object-fit: cover;
+  display: inline-block;
+}
+
+/* Quote Text Formatting */
+.testimonial-quote {
+  font-style: italic;
+  line-height: 1.6;
+}
