@@ -4,33 +4,30 @@ const cors = require('cors');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
 require('dotenv').config();
-const bookingRoutes = require('./routes/bookingRoutes');
-const { verifyToken, JWT_SECRET } = require('./middleware/auth');
+
 const app = express();
 app.use(cors());
-app.use(express.json()); 
+app.use(express.json());
+
+const User = require('./models/User');
+const bookingRoutes = require('./routes/bookingRoutes');
+const { verifyToken, JWT_SECRET } = require('./middleware/auth');
 
 const MONGO_URI = process.env.MONGO_URI;
-
 mongoose.connect(MONGO_URI).then(async () => {
     console.log('MongoDB Connected Successfully');
   })
   .catch((err) => console.error('MongoDB Connection Error:', err));
 
-const PORT = process.env.PORT;
-app.listen(PORT, () => {
-  console.log(`Server listening on port ${PORT}`);
-});
-
 app.post('/api/auth/register', async (req, res) => {
     try {
         const {email, password} = req.body;
 
-        if(!email || password) {
+        if(!email || !password) {
             return res.status(400).json({success: false, message: 'Email and Password required.'})
         }
 
-        const existingUser = await findOne({email});
+        const existingUser = await User.findOne({email});
 
         if(existingUser){
             return res.status(400).json({sucess: false, message: 'Email and Pass already exists.'})
@@ -67,5 +64,12 @@ app.post('/api/auth/login', async (req, res) => {
     } catch (error) {
         res.status(500).json({success: false, message: error.message})
     }
+});
+
+app.use('/api/bookings', bookingRoutes);
+
+const PORT = process.env.PORT;
+app.listen(PORT, () => {
+  console.log(`Server listening on port ${PORT}`);
 });
 

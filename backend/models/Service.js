@@ -15,7 +15,7 @@ const serviceSchema = new mongoose.Schema({
 
     frequencyDiscounts: {
         oneTime: {type: Number, default: 0},
-        Weekly: {type: Number, default: 25},
+        weekly: {type: Number, default: 25},
         biWeekly: {type: Number, default: 0},
         monthly: {type: Number, default: 0}
     },
