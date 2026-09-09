@@ -13,7 +13,7 @@ const User = require('./models/User');
 const bookingRoutes = require('./routes/bookingRoutes');
 const serviceRoutes = require('./routes/serviceRoutes');
 const cleanerRoutes = require('./routes/cleanerRoutes');
-const { verifyToken, JWT_SECRET } = require('./middleware/auth');
+const { JWT_SECRET } = require('./middleware/auth');
 
 const MONGO_URI = process.env.MONGO_URI;
 mongoose.connect(MONGO_URI).then(async () => {
@@ -40,7 +40,7 @@ app.post('/api/auth/register', async (req, res) => {
             const newUser = new User({ email, password: hashedPassword });
             await newUser.save();
 
-            res.status(201).json({ success: true, message: 'Admin user created successfully'});
+            res.status(201).json({ success: true, message: 'Account created successfully'});
         };
     } catch (error) {
         res.status(500).json({success: false, message: error.message})

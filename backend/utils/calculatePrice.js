@@ -1,11 +1,13 @@
 function calculatePrice(bookingDetails, serviceConfig) {
   const { cleaningType, bedrooms = 1, bathrooms = 1, extras = [], frequency = 'ONE-TIME' } = bookingDetails;
 
-  const basePrices = {
-    'Standard': serviceConfig?.baseTypes?.standard || 80,
-    'Deep': serviceConfig?.baseTypes?.deep || 140,
-    'Move In-Out': serviceConfig?.baseTypes?.moveInOut || 200
+  const typeKeys = {
+    'Standard': 'standard',
+    'Deep': 'deep',
+    'Move In-Out': 'moveInOut'
   };
+  const typeKey = typeKeys[cleaningType] || 'standard';
+  const rates = serviceConfig?.cleaningTypes?.[typeKey] || {};
 
   const frequencyMap = {
     'ONE-TIME': serviceConfig?.frequencyDiscounts?.oneTime || 0,
@@ -14,18 +16,13 @@ function calculatePrice(bookingDetails, serviceConfig) {
     'MONTHLY': serviceConfig?.frequencyDiscounts?.monthly || 10
   };
 
-  let total = basePrices[cleaningType] || basePrices['Standard'];
+  let total = bedrooms * (rates.perRoomRate || 0);
+  total += bathrooms * (rates.perBathRate || 0);
 
-  if (bedrooms > 1) {
-    total += (bedrooms - 1) * (serviceConfig?.perRoomRate || 50);
-  }
-  if (bathrooms > 1) {
-    total += (bathrooms - 1) * (serviceConfig?.perBathRate || 60);
-  }
-
-  if (Array.isArray(extras) && serviceConfig?.addons) {
+  if (Array.isArray(extras) && Array.isArray(rates.addons || serviceConfig?.addons)) {
+  const addons = rates.addons || serviceConfig.addons;
   for (const extraName of extras) {
-    const addon = serviceConfig.addons.find((a) => a.name === extraName);
+    const addon = addons.find((a) => a.name === extraName);
     if (addon) total += addon.price;
   }
 }

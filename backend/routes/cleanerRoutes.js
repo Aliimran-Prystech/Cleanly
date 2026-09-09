@@ -1,8 +1,9 @@
 const express = require('express');
 const router = express.Router();
 const Cleaner = require('../models/Cleaner');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
-router.post('/', async(req, res) => {
+router.post('/', verifyToken, requireAdmin, async(req, res) => {
     try {
         const {name, email, phone} = req.body;
 
@@ -19,7 +20,7 @@ router.post('/', async(req, res) => {
     }
 });
 
-router.get('/', async(req, res) => {
+router.get('/', verifyToken, requireAdmin, async(req, res) => {
     try {
         const cleaners = await Cleaner.find().sort({ createdAt : -1 });
         res.json({sucess: true, cleaners});
@@ -28,7 +29,7 @@ router.get('/', async(req, res) => {
     }
 });
 
-router.put('/:id', async(req, res) => {
+router.put('/:id', verifyToken, requireAdmin, async(req, res) => {
     try {
         const updatedCleaner = await Cleaner.findByIdAndUpdate(
             req.params.id, {...req.body}, { new: true }
@@ -44,7 +45,7 @@ router.put('/:id', async(req, res) => {
     }
 });
 
-router.delete('/:id', async(req, res) => {
+router.delete('/:id', verifyToken, requireAdmin, async(req, res) => {
     try{
         const deleteCleaner = await Cleaner.findByIdAndDelete(req.params.id);
 

@@ -18,6 +18,14 @@ const verifyToken = (req, res, next) => {
     } catch (error) {
         return res.status(401).json({success: false, message:error.message})
     };
-}
+};
 
-module.exports = {verifyToken, JWT_SECRET};
+const requireAdmin = (req, res, next) => {
+    if (req.user?.role !== 'admin') {
+        return res.status(403).json({success: false, message: 'Admin access required.'});
+    }
+
+    next();
+};
+
+module.exports = {verifyToken, requireAdmin, JWT_SECRET};

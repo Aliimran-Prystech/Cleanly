@@ -3,20 +3,19 @@ const router = express.Router();
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
 const calculatePrice = require('../utils/calculatePrice');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
 
-router.post('/create', async (req, res) => {
+router.post('/create', verifyToken, async (req, res) => {
   try {
     let serviceConfig = await Service.findOne();
 
     if (!serviceConfig) {
       serviceConfig = {
-        baseTypes: {
-          standard: 80,
-          deep: 140,
-          moveInOut: 200
+        cleaningTypes: {
+          standard: { perRoomRate: 50, perBathRate: 60 },
+          deep: { perRoomRate: 75, perBathRate: 85 },
+          moveInOut: { perRoomRate: 100, perBathRate: 110 }
         },
-        perRoomRate: 50,
-        perBathRate: 60,
         addons: [
           { name: 'Clean Oven', price: 25 },
           { name: 'Clean Windows', price: 20 },
@@ -42,7 +41,7 @@ router.post('/create', async (req, res) => {
   }
 });
 
-router.get('/', async (req, res) => {
+router.get('/', verifyToken, requireAdmin, async (req, res) => {
   try {
     const bookings = await Booking.find().sort({ createdAt: -1 });
     res.json({ success: true, bookings });
@@ -51,7 +50,7 @@ router.get('/', async (req, res) => {
   }
 });
 
-router.put('/:id', async (req, res) => {
+router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const serviceConfig = await Service.findOne();
     const totalCost = calculatePrice(req.body, serviceConfig);
@@ -82,7 +81,7 @@ router.put('/:id', async (req, res) => {
   }
 });
 
-router.delete('/:id', async (req, res) => {
+router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
     const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
 

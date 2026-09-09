@@ -2,7 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import "../styles/components/Header.scss";
 
-const Header = ({ isLoggedIn, onLogout }) => {
+const Header = ({ isLoggedIn, isAdmin = false, onLogout }) => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const navigate = useNavigate();
 
@@ -37,10 +37,10 @@ const Header = ({ isLoggedIn, onLogout }) => {
           <nav className="header__nav">
             <a href="#how-it-works">How It Works</a>
             <a href="#services">Our Services</a>
-            {isLoggedIn && <Link to="/dashboard">Dashboard</Link>}
+            {isAdmin && <Link to="/dashboard">Dashboard</Link>}
           </nav>
 
-          <button className="header__book-btn" type="button">
+          <button className="header__book-btn" type="button" onClick={() => navigate("/booking")}>
             Book a Cleaning
           </button>
 
@@ -75,7 +75,7 @@ const Header = ({ isLoggedIn, onLogout }) => {
           <a href="#services" onClick={() => setIsMenuOpen(false)}>
             Our Services
           </a>
-          {isLoggedIn && (
+          {isAdmin && (
             <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
               Dashboard
             </Link>
@@ -84,7 +84,10 @@ const Header = ({ isLoggedIn, onLogout }) => {
           <button
             className="header__book-btn"
             type="button"
-            onClick={() => setIsMenuOpen(false)}
+            onClick={() => {
+              setIsMenuOpen(false);
+              navigate("/booking");
+            }}
           >
             Book a Cleaning
           </button>

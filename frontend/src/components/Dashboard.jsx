@@ -5,12 +5,16 @@ import Header from './Header';
 import '../styles/components/Dashboard.scss';
 
 const API_BASE_URL = 'http://localhost:5000/api';
+const authConfig = () => ({
+  headers: { Authorization: `Bearer ${localStorage.getItem('token')}` }
+});
 
 const defaultServices = {
-  baseTypes: { standard: 80, deep: 140, moveInOut: 200 },
-  perRoomRate: 50,
-  perBathRate: 60,
-  addons: [],
+  cleaningTypes: {
+    standard: { perRoomRate: 50, perBathRate: 60, addons: [] },
+    deep: { perRoomRate: 75, perBathRate: 85, addons: [] },
+    moveInOut: { perRoomRate: 100, perBathRate: 110, addons: [] }
+  },
   frequencyDiscounts: { oneTime: 0, weekly: 25, biWeekly: 15, monthly: 10 }
 };
 
@@ -58,20 +62,26 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
     setError('');
     try {
       const [bookingResponse, cleanerResponse, serviceResponse] = await Promise.all([
-        axios.get(`${API_BASE_URL}/bookings`),
-        axios.get(`${API_BASE_URL}/cleaners`),
+        axios.get(`${API_BASE_URL}/bookings`, authConfig()),
+        axios.get(`${API_BASE_URL}/cleaners`, authConfig()),
         axios.get(`${API_BASE_URL}/services`)
       ]);
 
       setBookings(bookingResponse.data?.bookings || []);
       setCleaners(cleanerResponse.data?.cleaners || []);
       const savedServices = getServiceConfig(serviceResponse.data);
+      const legacyAddons = Array.isArray(savedServices?.addons) ? savedServices.addons : [];
       setServiceConfig({
         ...defaultServices,
         ...savedServices,
-        baseTypes: { ...defaultServices.baseTypes, ...(savedServices?.baseTypes || {}) },
+        cleaningTypes: {
+          ...defaultServices.cleaningTypes,
+          ...(savedServices?.cleaningTypes || {}),
+          standard: { ...defaultServices.cleaningTypes.standard, addons: legacyAddons, ...(savedServices?.cleaningTypes?.standard || {}) },
+          deep: { ...defaultServices.cleaningTypes.deep, addons: legacyAddons, ...(savedServices?.cleaningTypes?.deep || {}) },
+          moveInOut: { ...defaultServices.cleaningTypes.moveInOut, addons: legacyAddons, ...(savedServices?.cleaningTypes?.moveInOut || {}) }
+        },
         frequencyDiscounts: { ...defaultServices.frequencyDiscounts, ...(savedServices?.frequencyDiscounts || {}) },
-        addons: Array.isArray(savedServices?.addons) ? savedServices.addons : []
       });
     } catch (loadError) {
       console.error('Dashboard data load failed:', loadError);
@@ -88,6 +98,16 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
     setServiceConfig((current) => ({
       ...current,
       [section]: { ...current[section], [key]: Number(value) }
+    }));
+  };
+
+  const updateCleaningTypeRate = (type, field, value) => {
+    setServiceConfig((current) => ({
+      ...current,
+      cleaningTypes: {
+        ...current.cleaningTypes,
+        [type]: { ...current.cleaningTypes[type], [field]: Number(value) }
+      }
     }));
   };
 
@@ -113,7 +133,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
     };
 
     try {
-      const response = await axios.put(`${API_BASE_URL}/bookings/${bookingId}`, payload);
+      const response = await axios.put(`${API_BASE_URL}/bookings/${bookingId}`, payload, authConfig());
       const updatedBooking = response.data?.booking;
       setBookings((current) => current.map((item) => (getId(item) === bookingId ? updatedBooking : item)));
     } catch (updateError) {
@@ -133,7 +153,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
   const deleteBooking = async (bookingId) => {
     if (!window.confirm('Delete this booking?')) return;
     try {
-      await axios.delete(`${API_BASE_URL}/bookings/${bookingId}`);
+      await axios.delete(`${API_BASE_URL}/bookings/${bookingId}`, authConfig());
       setBookings((current) => current.filter((booking) => getId(booking) !== bookingId));
     } catch (deleteError) {
       console.error('Booking deletion failed:', deleteError);
@@ -151,7 +171,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
     event.preventDefault();
     try {
       const url = editingCleaner ? `${API_BASE_URL}/cleaners/${getId(editingCleaner)}` : `${API_BASE_URL}/cleaners`;
-      const response = editingCleaner ? await axios.put(url, cleanerForm) : await axios.post(url, cleanerForm);
+      const response = editingCleaner ? await axios.put(url, cleanerForm, authConfig()) : await axios.post(url, cleanerForm, authConfig());
       const savedCleaner = response.data?.cleaner;
       setCleaners((current) => editingCleaner
         ? current.map((cleaner) => (getId(cleaner) === getId(editingCleaner) ? savedCleaner : cleaner))
@@ -166,7 +186,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
   const deleteCleaner = async (cleanerId) => {
     if (!window.confirm('Delete this cleaner?')) return;
     try {
-      await axios.delete(`${API_BASE_URL}/cleaners/${cleanerId}`);
+      await axios.delete(`${API_BASE_URL}/cleaners/${cleanerId}`, authConfig());
       setCleaners((current) => current.filter((cleaner) => getId(cleaner) !== cleanerId));
     } catch (deleteError) {
       console.error('Cleaner deletion failed:', deleteError);
@@ -177,7 +197,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
   const saveServices = async () => {
     setSavingServices(true);
     try {
-      const response = await axios.put(`${API_BASE_URL}/services/config`, serviceConfig);
+      const response = await axios.put(`${API_BASE_URL}/services/config`, serviceConfig, authConfig());
       setServiceConfig(getServiceConfig(response.data));
     } catch (saveError) {
       console.error('Service configuration save failed:', saveError);
@@ -227,7 +247,7 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
           <section className="tab-card services-card">
             <div className="card-header-bar card-header-actions"><span>Service Pricing</span><button type="button" className="primary-button" onClick={saveServices} disabled={savingServices}>{savingServices ? 'Saving...' : 'Save Changes'}</button></div>
             <div className="card-body service-sections">
-              {[['DEEP', 'deep'], ['MOVE IN-OUT', 'moveInOut'], ['STANDARD', 'standard']].map(([label, key]) => <div className="service-group" key={key}><div className="group-header">{label}</div><div className="group-body"><PriceInput label="Base Price" value={serviceConfig.baseTypes[key]} onChange={(value) => updateServiceValue('baseTypes', key, value)} /><PriceInput label="Cost Per Bedroom" value={serviceConfig.perRoomRate} onChange={(value) => setServiceConfig((current) => ({ ...current, perRoomRate: Number(value) }))} /><PriceInput label="Cost Per Bathroom" value={serviceConfig.perBathRate} onChange={(value) => setServiceConfig((current) => ({ ...current, perBathRate: Number(value) }))} />{serviceConfig.addons.map((addon, index) => <PriceInput key={`${addon.name}-${index}`} label={`Addon - ${addon.name}`} value={addon.price} onChange={(value) => setServiceConfig((current) => ({ ...current, addons: current.addons.map((item, itemIndex) => itemIndex === index ? { ...item, price: Number(value) } : item) }))} />)}</div></div>)}
+              {[['DEEP', 'deep'], ['MOVE IN-OUT', 'moveInOut'], ['STANDARD', 'standard']].map(([label, key]) => <div className="service-group" key={key}><div className="group-header">{label}</div><div className="group-body"><PriceInput label="Cost Per Bedroom" value={serviceConfig.cleaningTypes[key].perRoomRate} onChange={(value) => updateCleaningTypeRate(key, 'perRoomRate', value)} /><PriceInput label="Cost Per Bathroom" value={serviceConfig.cleaningTypes[key].perBathRate} onChange={(value) => updateCleaningTypeRate(key, 'perBathRate', value)} />{serviceConfig.cleaningTypes[key].addons.map((addon, index) => <PriceInput key={`${addon.name}-${index}`} label={`Addon - ${addon.name}`} value={addon.price} onChange={(value) => setServiceConfig((current) => ({ ...current, cleaningTypes: { ...current.cleaningTypes, [key]: { ...current.cleaningTypes[key], addons: current.cleaningTypes[key].addons.map((item, itemIndex) => itemIndex === index ? { ...item, price: Number(value) } : item) } } }))} />)}</div></div>)}
               <div className="service-group"><div className="group-header">DISCOUNTS</div><div className="group-body">{[['ONE-TIME', 'oneTime'], ['WEEKLY', 'weekly'], ['BI-WEEKLY', 'biWeekly'], ['MONTHLY', 'monthly']].map(([label, key]) => <PriceInput key={key} label={label} suffix="%" value={serviceConfig.frequencyDiscounts[key]} onChange={(value) => updateServiceValue('frequencyDiscounts', key, value)} />)}</div></div>
             </div>
           </section>

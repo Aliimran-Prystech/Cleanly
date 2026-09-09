@@ -1,6 +1,12 @@
 const express = require('express');
 const router = express.Router();
 const Service = require('../models/Service');
+const { verifyToken, requireAdmin } = require('../middleware/auth');
+const defaultAddons = [
+    { name: 'Clean Oven', price: 25 },
+    { name: 'Clean Windows', price: 20 },
+    { name: 'Clean Fridge', price: 20 }
+];
 
 router.get('/', async (req, res) => {
     try {
@@ -8,14 +14,11 @@ router.get('/', async (req, res) => {
 
         if (!serviceConfig) {
         serviceConfig = await Service.create({
-        baseTypes: { standard: 80, deep: 140, moveInOut: 200 },
-        perRoomRate: 50,
-        perBathRate: 60,
-        addons: [
-          { name: 'Clean Oven', price: 25 },
-          { name: 'Clean Windows', price: 20 },
-          { name: 'Clean Fridge', price: 20 }
-        ],
+                cleaningTypes: {
+                    standard: { perRoomRate: 50, perBathRate: 60, addons: defaultAddons },
+                    deep: { perRoomRate: 75, perBathRate: 85, addons: defaultAddons },
+                    moveInOut: { perRoomRate: 100, perBathRate: 110, addons: defaultAddons }
+                },
         frequencyDiscounts: { oneTime: 0, weekly: 25, biWeekly: 15, monthly: 10 }
         });
         }
@@ -25,11 +28,19 @@ router.get('/', async (req, res) => {
     }
 });
 
-router.put('/config', async (req, res) => {
+router.put('/config', verifyToken, requireAdmin, async (req, res) => {
     try {
         const updatedConfig = await Service.findOneAndUpdate(
         {},
-        { ...req.body },
+                {
+                    $set: { ...req.body },
+                    $unset: {
+                        baseTypes: '',
+                        perRoomRate: '',
+                        perBathRate: '',
+                        addons: ''
+                    }
+                },
         { returnDocument: 'after', upsert: true, runValidators: true }
         );
 

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { BrowserRouter as Router, Routes, Route } from "react-router-dom";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
 
 import Header from "./components/Header";
 import HeroSection from "./components/HeroSection";
@@ -11,10 +11,11 @@ import BottomCTA from "./components/BottomCTA";
 import Footer from "./components/Footer";
 import Auth from "./components/Auth";
 import Dashboard from "./components/Dashboard";
+import Booking from "./components/Booking";
 
-const Home = ({ isLoggedIn, handleLogout }) => (
+const Home = ({ isLoggedIn, isAdmin, handleLogout }) => (
   <main className="home-layout">
-    <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
+    <Header isLoggedIn={isLoggedIn} isAdmin={isAdmin} onLogout={handleLogout} />
     <HeroSection />
     <TrustedCompanies />
     <HowItWorks />
@@ -28,10 +29,19 @@ const App = () => {
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     return Boolean(localStorage.getItem("token"));
   });
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || null;
+    } catch {
+      return null;
+    }
+  });
 
   const handleLogout = () => {
     localStorage.removeItem("token");
+    localStorage.removeItem("user");
     setIsLoggedIn(false);
+    setCurrentUser(null);
   };
 
   return (
@@ -40,16 +50,21 @@ const App = () => {
         <Route
           path="/"
           element={
-            <Home isLoggedIn={isLoggedIn} handleLogout={handleLogout} />
+            <Home isLoggedIn={isLoggedIn} isAdmin={currentUser?.role === "admin"} handleLogout={handleLogout} />
           }
         />
         <Route
           path="/auth"
-          element={<Auth setIsLoggedIn={setIsLoggedIn} />}
+          element={<Auth setIsLoggedIn={setIsLoggedIn} setCurrentUser={setCurrentUser} />}
         />
         <Route 
         path="/dashboard" 
-        element={<Dashboard isLoggedIn={isLoggedIn} handleLogout={handleLogout} />} 
+        element={currentUser?.role === "admin" ? <Dashboard isLoggedIn={isLoggedIn} handleLogout={handleLogout} /> : <Navigate to="/" replace />}
+        />
+
+        <Route
+          path="/booking"
+          element={<Booking isLoggedIn={isLoggedIn} handleLogout={handleLogout} />}
         />
       </Routes>
       <Footer />

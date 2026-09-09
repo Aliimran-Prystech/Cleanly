@@ -3,7 +3,7 @@ import { useNavigate, Link } from 'react-router-dom';
 import axios from 'axios';
 import '../styles/components/Auth.scss';
 
-const Auth = ({ setIsLoggedIn }) => {
+const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
     email: '',
@@ -35,10 +35,12 @@ const Auth = ({ setIsLoggedIn }) => {
       if (isLogin) {
         if (data.token) {
             localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
         }
         
         // Safely invoke the prop
         setIsLoggedIn?.(true);
+        setCurrentUser?.(data.user);
         
         navigate('/');
         } else {

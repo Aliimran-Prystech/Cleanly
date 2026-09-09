@@ -1,18 +1,23 @@
 const mongoose = require('mongoose');
 
 const serviceSchema = new mongoose.Schema({
-  baseTypes: {
-    standard: { type: Number, required: true, default: 80 },
-    deep: { type: Number, required: true, default: 140 },
-    moveInOut: { type: Number, required: true, default: 200 }
+  cleaningTypes: {
+    standard: {
+      perRoomRate: { type: Number, default: 50 },
+      perBathRate: { type: Number, default: 60 },
+      addons: [{ name: { type: String, required: true }, price: { type: Number, required: true } }]
+    },
+    deep: {
+      perRoomRate: { type: Number, default: 75 },
+      perBathRate: { type: Number, default: 85 },
+      addons: [{ name: { type: String, required: true }, price: { type: Number, required: true } }]
+    },
+    moveInOut: {
+      perRoomRate: { type: Number, default: 100 },
+      perBathRate: { type: Number, default: 110 },
+      addons: [{ name: { type: String, required: true }, price: { type: Number, required: true } }]
+    }
   },
-    perRoomRate: { type: Number, required: true, default: 50 },
-    perBathRate: { type: Number, required: true, default: 60 },
-    addons: [{
-        name: { type: String, required: true },
-        price: { type: Number, required: true }
-    }],
-
     frequencyDiscounts: {
         oneTime: {type: Number, default: 0},
         weekly: {type: Number, default: 25},
