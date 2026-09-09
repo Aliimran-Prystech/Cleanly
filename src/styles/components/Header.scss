@@ -1,0 +1,270 @@
+@use "../../styles/variables" as *;
+
+.header {
+  width: 100%;
+  background-color: $white;
+  border-bottom: 1px solid #eeeeee;
+  position: relative;
+  z-index: 1000;
+
+  &__container {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 18px 24px;
+
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+  }
+
+  // Logo
+  &__logo-link {
+    display: flex;
+    align-items: center;
+
+    img {
+      display: block;
+      max-width: 125px;
+      height: auto;
+    }
+  }
+
+  // Desktop Actions
+  &__desktop-actions {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+  }
+
+  // Navigation
+  &__nav {
+    display: flex;
+    align-items: center;
+    gap: 32px;
+
+    a {
+      font-size: 15px;
+      font-weight: 500;
+      color: $dark-color;
+      text-decoration: none;
+
+      transition: color 0.3s ease;
+
+      &:hover {
+        color: $primary-color;
+      }
+    }
+  }
+
+  // Shared button styling
+  &__book-btn,
+  &__login-btn {
+    border-radius: 4px;
+    font-size: 15px;
+    font-weight: 400;
+    cursor: pointer;
+
+    min-height: 44px;
+    padding: 0 22px;
+
+    transition:
+      background-color 0.3s ease,
+      color 0.3s ease,
+      transform 0.3s ease;
+
+    &:hover {
+      transform: translateY(-2px);
+    }
+  }
+
+  // Book button
+  &__book-btn {
+    border: 1px solid $primary-color;
+    background-color: $primary-color;
+    color: $white;
+
+    &:hover {
+      background-color: darken($primary-color, 8%);
+    }
+  }
+
+  // Login button
+  &__login-btn {
+    border: 1px solid $primary-color;
+    background-color: transparent;
+    color: $primary-color;
+
+    &:hover {
+      background-color: $primary-color;
+      color: $white;
+    }
+  }
+
+  // Hamburger
+  &__menu-btn {
+    display: none;
+
+    width: 58px;
+    height: 42px;
+
+    background-color: transparent;
+    border: 2px solid #c88d1d;
+    border-radius: 6px;
+
+    cursor: pointer;
+
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 5px;
+
+    transition: all 0.3s ease;
+
+    span {
+      display: block;
+
+      width: 23px;
+      height: 2px;
+
+      background-color: #687078;
+
+      transition: all 0.3s ease;
+    }
+  }
+
+  // Mobile menu hidden by default
+  &__mobile-menu {
+    display: none;
+  }
+
+  @media (max-width: 768px) {
+    &__container {
+      padding: 20px 40px;
+    }
+
+    &__logo-link {
+      img {
+        max-width: 120px;
+      }
+    }
+
+    // Hide desktop content
+    &__desktop-actions {
+      display: none;
+    }
+
+    // Show hamburger
+    &__menu-btn {
+      display: flex;
+    }
+
+    // Hamburger animation
+    &__menu-btn.active {
+      span:nth-child(1) {
+        transform: translateY(7px) rotate(45deg);
+      }
+
+      span:nth-child(2) {
+        opacity: 0;
+      }
+
+      span:nth-child(3) {
+        transform: translateY(-7px) rotate(-45deg);
+      }
+    }
+
+    // Mobile menu
+    &__mobile-menu {
+      display: block;
+
+      position: absolute;
+      top: 100%;
+      left: 0;
+
+      width: 100%;
+
+      background-color: $white;
+
+      max-height: 0;
+      overflow: hidden;
+      opacity: 0;
+
+      transition:
+        max-height 0.4s ease,
+        opacity 0.3s ease;
+
+      box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
+
+      &.active {
+        max-height: 400px;
+        opacity: 1;
+      }
+    }
+
+    &__mobile-nav {
+      display: flex;
+      flex-direction: column;
+
+      align-items: flex-start;
+
+      padding: 12px 40px 20px;
+      gap: 0;
+
+      a {
+        width: 100%;
+
+        padding: 15px 0;
+
+        color: $dark-color;
+        text-decoration: none;
+
+        font-size: 16px;
+        font-weight: 400;
+
+        transition:
+          color 0.3s ease,
+          padding-left 0.3s ease;
+
+        &:hover {
+          color: $primary-color;
+          padding-left: 8px;
+        }
+      }
+
+      // Same buttons, mobile sizing
+      .header__book-btn,
+      .header__login-btn {
+        width: 185px;
+        margin-top: 10px;
+
+        min-height: 44px;
+
+        text-align: center;
+      }
+
+      .header__login-btn {
+        width: 115px;
+      }
+    }
+  }
+
+  // Small mobile
+  @media (max-width: 480px) {
+    &__container {
+      padding: 18px 25px;
+    }
+
+    &__mobile-nav {
+      padding-left: 25px;
+      padding-right: 25px;
+    }
+
+    &__logo-link img {
+      max-width: 115px;
+    }
+
+    &__menu-btn {
+      width: 55px;
+    }
+  }
+}
