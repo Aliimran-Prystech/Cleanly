@@ -1,55 +1,42 @@
-import Carousel from "react-bootstrap/Carousel";
-import Cleaning1 from "../assets/Cleaning1.jpg";
-import Cleaning2 from "../assets/Cleaning2.jpg";
-import Cleaning3 from "../assets/Cleaning3.jpg";
+import "../styles/components/HeroSection.scss";
 
 const HeroSection = () => {
   return (
-    <Carousel>
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Cleaning1}
-          alt="Professional bedroom cleaning"
-        />
+    <section className="hero">
+      {/* Background Image */}
+      <img
+        src="https://cleanly-700a6.firebaseapp.com/static/media/landing-img.0e5af4d4b6224ab07a9b.jpg"
+        alt="Professional home cleaning"
+        className="hero__bg"
+      />
+      <div className="hero__overlay" />
 
-        <Carousel.Caption className="hero-caption">
-          <h1>A Cleaner Home, A Happier Life</h1>
+      {/* Content */}
+      <div className="hero__container">
+        <div className="hero__content">
+          <h1>Cleaning Made Easy</h1>
 
           <p>
-            Professional cleaning services for a fresh and comfortable home.
+            Book expert home cleaners and handymen at a moment's notice.
+            <br />
+            Just pick a time and we'll do the rest.
           </p>
-        </Carousel.Caption>
-      </Carousel.Item>
+        </div>
 
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Cleaning2}
-          alt="Professional bathroom cleaning"
-        />
+        {/* Booking Form */}
+        <form className="hero__form">
+          <div className="hero__input-group">
+            <input type="email" placeholder="Email Address" />
 
-        <Carousel.Caption className="hero-caption">
-          <h1>Professional Deep Cleaning</h1>
+            <input type="text" placeholder="Zip Code" />
 
-          <p>Let our professional cleaners take care of every corner.</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-
-      <Carousel.Item>
-        <img
-          className="d-block w-100 hero-image"
-          src={Cleaning3}
-          alt="Clean and beautiful home"
-        />
-
-        <Carousel.Caption className="hero-caption">
-          <h1>Book Your Cleaning Today</h1>
-
-          <p>Choose your preferred service, date, and time.</p>
-        </Carousel.Caption>
-      </Carousel.Item>
-    </Carousel>
+            <button type="submit">
+              Continue <span>›</span>
+            </button>
+          </div>
+        </form>
+      </div>
+    </section>
   );
 };
 

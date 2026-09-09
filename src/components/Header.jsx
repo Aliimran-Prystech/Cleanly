@@ -1,26 +1,69 @@
-import Container from "react-bootstrap/Container";
-import Nav from "react-bootstrap/Nav";
-import Navbar from "react-bootstrap/Navbar";
-import Button from "react-bootstrap/Button";
+import { useState } from "react";
+import "../styles/components/Header.scss";
 
 const Header = () => {
+  const [menuOpen, setMenuOpen] = useState(false);
+
+  const closeMenu = () => {
+    setMenuOpen(false);
+  };
+
   return (
-    <Navbar className="cleanly-navbar" data-bs-theme="dark">
-      <Container>
-        <Navbar.Brand href="#home">Cleanly</Navbar.Brand>
+    <header className="header">
+      <div className="header__container">
+        {/* Logo */}
+        <a href="/" className="header__logo-link">
+          <img
+            src="https://cleanly-700a6.firebaseapp.com/static/media/logo.8ff229fcc20562bae2d7.png"
+            alt="Cleanly"
+          />
+        </a>
 
-        <Nav className="ms-auto">
-          <Nav.Link href="#features">How It Works</Nav.Link>
-          <Nav.Link href="#services">Our Services</Nav.Link>
+        {/* Desktop Navigation */}
+        <div className="header__desktop-actions">
+          <nav className="header__nav">
+            <a href="#how-it-works">How It Works</a>
+            <a href="#services">Our Services</a>
+          </nav>
 
-          <Button variant="info" className="me-3">
+          <button className="header__book-btn">Book a Cleaning</button>
+
+          <button className="header__login-btn">Login</button>
+        </div>
+
+        {/* Hamburger Button */}
+        <button
+          className={`header__menu-btn ${menuOpen ? "active" : ""}`}
+          onClick={() => setMenuOpen(!menuOpen)}
+          aria-label="Toggle navigation menu"
+        >
+          <span></span>
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      {/* Mobile Menu */}
+      <div className={`header__mobile-menu ${menuOpen ? "active" : ""}`}>
+        <nav className="header__mobile-nav">
+          <a href="#how-it-works" onClick={closeMenu}>
+            How It Works
+          </a>
+
+          <a href="#services" onClick={closeMenu}>
+            Our Services
+          </a>
+
+          <button className="header__book-btn" onClick={closeMenu}>
             Book a Cleaning
-          </Button>
+          </button>
 
-          <Button variant="outline-light">Login</Button>
-        </Nav>
-      </Container>
-    </Navbar>
+          <button className="header__login-btn" onClick={closeMenu}>
+            Log In
+          </button>
+        </nav>
+      </div>
+    </header>
   );
 };
 
