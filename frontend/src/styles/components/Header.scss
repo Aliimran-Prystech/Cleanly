@@ -1,4 +1,5 @@
 @use "../../styles/variables" as *;
+@use "sass:color";
 
 .header {
   width: 100%;
@@ -11,6 +12,7 @@
     max-width: 1280px;
     margin: 0 auto;
     padding: 18px 24px;
+    box-sizing: border-box;
 
     display: flex;
     align-items: center;
@@ -36,7 +38,7 @@
     gap: 20px;
   }
 
-  // Navigation
+  // Navigation Links
   &__nav {
     display: flex;
     align-items: center;
@@ -47,68 +49,88 @@
       font-weight: 500;
       color: $dark-color;
       text-decoration: none;
-
       transition: color 0.3s ease;
 
       &:hover {
-        color: $primary-color;
+        color: #54aabd;
       }
     }
   }
 
-  // Shared button styling
+  // Master Button Reset & Alignment
   &__book-btn,
   &__login-btn {
+    all: unset;
+    display: inline-flex !important;
+    align-items: center !important;
+    justify-content: center !important;
+    box-sizing: border-box !important;
+
     border-radius: 4px;
     font-size: 15px;
-    font-weight: 400;
+    font-weight: 500;
     cursor: pointer;
+    line-height: 1;
 
-    min-height: 44px;
-    padding: 0 22px;
+    height: 42px;
+    padding: 0 20px;
 
     transition:
       background-color 0.3s ease,
       color 0.3s ease,
+      border-color 0.3s ease,
       transform 0.3s ease;
 
     &:hover {
-      transform: translateY(-2px);
+      transform: translateY(-1px);
     }
   }
 
-  // Book button
+  // Book a Cleaning Button (Cyan Solid)
   &__book-btn {
-    border: 1px solid $primary-color;
-    background-color: $primary-color;
-    color: $white;
+    border: 1px solid #54aabd !important;
+    background-color: #54aabd !important;
+    color: $white !important;
 
     &:hover {
-      background-color: darken($primary-color, 8%);
+      background-color: color.adjust(#54aabd, $lightness: -6%) !important;
     }
   }
 
-  // Login button
+  // Login Button (Outlined) & Logout Button (Red Solid as seen in Image 2)
   &__login-btn {
-    border: 1px solid $primary-color;
-    background-color: transparent;
-    color: $primary-color;
+    border: 1px solid #54aabd !important;
+    background-color: transparent !important;
+    color: #54aabd !important;
 
     &:hover {
-      background-color: $primary-color;
-      color: $white;
+      background-color: #54aabd !important;
+      color: $white !important;
+    }
+
+    // Styles specifically applied when logged in (Image 2 style)
+    &.logged-in {
+      background-color: #e53e3e !important;
+      border: 1px solid #e53e3e !important;
+      color: $white !important;
+
+      &:hover {
+        background-color: color.adjust(#e53e3e, $lightness: -8%) !important;
+      }
     }
   }
 
-  // Hamburger
+  // Hamburger Button
   &__menu-btn {
+    all: unset;
     display: none;
+    box-sizing: border-box;
 
-    width: 58px;
-    height: 42px;
+    width: 48px;
+    height: 40px;
 
     background-color: transparent;
-    border: 2px solid #c88d1d;
+    border: 1px solid #d1d5db;
     border-radius: 6px;
 
     cursor: pointer;
@@ -122,12 +144,9 @@
 
     span {
       display: block;
-
-      width: 23px;
+      width: 20px;
       height: 2px;
-
-      background-color: #687078;
-
+      background-color: $dark-color;
       transition: all 0.3s ease;
     }
   }
@@ -137,66 +156,53 @@
     display: none;
   }
 
+  /* Responsive Breakpoints */
   @media (max-width: 768px) {
     &__container {
-      padding: 20px 40px;
+      padding: 16px 24px;
     }
 
-    &__logo-link {
-      img {
-        max-width: 120px;
-      }
+    &__logo-link img {
+      max-width: 110px;
     }
 
-    // Hide desktop content
     &__desktop-actions {
       display: none;
     }
 
-    // Show hamburger
     &__menu-btn {
       display: flex;
     }
 
-    // Hamburger animation
     &__menu-btn.active {
       span:nth-child(1) {
         transform: translateY(7px) rotate(45deg);
       }
-
       span:nth-child(2) {
         opacity: 0;
       }
-
       span:nth-child(3) {
         transform: translateY(-7px) rotate(-45deg);
       }
     }
 
-    // Mobile menu
     &__mobile-menu {
       display: block;
-
       position: absolute;
       top: 100%;
       left: 0;
-
       width: 100%;
-
       background-color: $white;
-
       max-height: 0;
       overflow: hidden;
       opacity: 0;
-
       transition:
-        max-height 0.4s ease,
-        opacity 0.3s ease;
-
+        max-height 0.35s ease-in-out,
+        opacity 0.3s ease-in-out;
       box-shadow: 0 10px 20px rgba(0, 0, 0, 0.08);
 
       &.active {
-        max-height: 400px;
+        max-height: 450px;
         opacity: 1;
       }
     }
@@ -204,67 +210,54 @@
     &__mobile-nav {
       display: flex;
       flex-direction: column;
-
       align-items: flex-start;
-
-      padding: 12px 40px 20px;
-      gap: 0;
+      padding: 12px 24px 24px;
 
       a {
         width: 100%;
-
-        padding: 15px 0;
-
+        padding: 12px 0;
         color: $dark-color;
         text-decoration: none;
-
-        font-size: 16px;
-        font-weight: 400;
-
+        font-size: 15px;
+        font-weight: 500;
         transition:
           color 0.3s ease,
           padding-left 0.3s ease;
 
         &:hover {
-          color: $primary-color;
-          padding-left: 8px;
+          color: #54aabd;
+          padding-left: 6px;
         }
       }
 
-      // Same buttons, mobile sizing
       .header__book-btn,
       .header__login-btn {
-        width: 185px;
-        margin-top: 10px;
-
-        min-height: 44px;
-
-        text-align: center;
-      }
-
-      .header__login-btn {
-        width: 115px;
+        width: 100%;
+        max-width: 240px;
+        margin-top: 12px;
+        height: 42px;
+        font-size: 14px;
       }
     }
   }
 
-  // Small mobile
   @media (max-width: 480px) {
     &__container {
-      padding: 18px 25px;
+      padding: 14px 16px;
     }
 
     &__mobile-nav {
-      padding-left: 25px;
-      padding-right: 25px;
+      padding-left: 16px;
+      padding-right: 16px;
+
+      .header__book-btn,
+      .header__login-btn {
+        max-width: 100%;
+      }
     }
 
     &__logo-link img {
-      max-width: 115px;
-    }
-
-    &__menu-btn {
-      width: 55px;
+      max-width: 100px;
     }
   }
 }

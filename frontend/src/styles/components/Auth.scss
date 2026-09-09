@@ -1,0 +1,150 @@
+@use "../variables" as *;
+
+.auth-page {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background-color: #f8fafc;
+
+  // Header
+  .auth-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 1.5rem 4rem;
+    max-width: 1280px;
+    margin: 0 auto;
+    width: 100%;
+    box-sizing: border-box;
+
+    .auth-logo-link img {
+      height: 38px;
+      width: auto;
+      display: block;
+    }
+
+    .phone-number {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: $dark-color;
+    }
+
+    @media (max-width: 768px) {
+      padding: 1rem 1.5rem;
+
+      .auth-logo-link img {
+        height: 30px;
+      }
+
+      .phone-number {
+        font-size: 1rem;
+      }
+    }
+  }
+
+  // Auth Card Container
+  .auth-container {
+    flex: 1;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    padding: 2rem 1rem;
+    box-sizing: border-box;
+
+    .auth-card {
+      width: 100%;
+      max-width: 420px;
+      background-color: $white;
+      border: 1px solid #e2e8f0;
+      border-radius: 8px;
+      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+
+      .auth-tabs {
+        display: flex;
+        border-bottom: 1px solid #e2e8f0;
+
+        .tab-btn {
+          all: unset; // Prevents global button styling leaks
+          flex: 1;
+          padding: 1rem;
+          text-align: center;
+          font-size: 1rem;
+          font-weight: 600;
+          color: #54aabd;
+          cursor: pointer;
+          transition: background-color 0.2s ease, color 0.2s ease;
+          box-sizing: border-box;
+
+          &.active {
+            background-color: #54aabd;
+            color: $white;
+          }
+
+          &:hover:not(.active) {
+            background-color: #f1f5f9;
+          }
+        }
+      }
+
+      .auth-form {
+        padding: 2rem;
+        display: flex;
+        flex-direction: column;
+        gap: 1.25rem;
+
+        @media (max-width: 480px) {
+          padding: 1.5rem 1rem;
+        }
+
+        .error-message {
+          color: #e53e3e;
+          background-color: #fff5f5;
+          border: 1px solid #fed7d7;
+          padding: 0.75rem;
+          border-radius: 4px;
+          font-size: 0.875rem;
+          text-align: center;
+        }
+
+        .input-group input {
+          width: 100%;
+          padding: 0.75rem 1rem;
+          border: 1px solid #cbd5e1;
+          border-radius: 6px;
+          font-size: 0.95rem;
+          box-sizing: border-box;
+          outline: none;
+
+          &:focus {
+            border-color: #54aabd;
+            box-shadow: 0 0 0 3px rgba(84, 170, 189, 0.15);
+          }
+        }
+
+        .submit-btn {
+          all: unset; // Prevents global button styling leaks
+          width: 100%;
+          padding: 0.85rem;
+          text-align: center;
+          background-color: #54aabd;
+          color: $white;
+          font-weight: 600;
+          border-radius: 6px;
+          cursor: pointer;
+          box-sizing: border-box;
+          transition: background-color 0.2s ease;
+
+          &:hover {
+            background-color: #3d92a5;
+          }
+
+          &:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+          }
+        }
+      }
+    }
+  }
+}
