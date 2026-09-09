@@ -108,7 +108,11 @@ const Booking = () => {
                 {/* Bedrooms */}
                 <div className="room-card">
                   <div className="room-card__icon">
-                    <img src="https://cleanly-700a6.firebaseapp.com/static/media/double-bed.d9f07817ed485e9e44867d90cd599487.svg" alt="bedroom_icon" width={100} />
+                    <img
+                      src="https://cleanly-700a6.firebaseapp.com/static/media/double-bed.d9f07817ed485e9e44867d90cd599487.svg"
+                      alt="bedroom_icon"
+                      width={100}
+                    />
                   </div>
 
                   <strong>BEDROOMS</strong>
@@ -125,7 +129,7 @@ const Booking = () => {
 
                     <button
                       type="button"
-                      onClick={() => setBedrooms(bedrooms + 1)}
+                      onClick={() => setBedrooms(Math.min(10, bedrooms + 1))}
                     >
                       +
                     </button>
@@ -135,7 +139,11 @@ const Booking = () => {
                 {/* Bathrooms */}
                 <div className="room-card">
                   <div className="room-card__icon">
-                    <img src="https://cleanly-700a6.firebaseapp.com/static/media/shower.e6890660b15eb68b523fa147e59542bb.svg" alt="bathroom_icon" width={100}  />
+                    <img
+                      src="https://cleanly-700a6.firebaseapp.com/static/media/shower.e6890660b15eb68b523fa147e59542bb.svg"
+                      alt="bathroom_icon"
+                      width={100}
+                    />
                   </div>
 
                   <strong>BATHROOMS</strong>
@@ -152,7 +160,7 @@ const Booking = () => {
 
                     <button
                       type="button"
-                      onClick={() => setBathrooms(bathrooms + 1)}
+                      onClick={() => setBathrooms(Math.min(10, bathrooms + 1))}
                     >
                       +
                     </button>
@@ -217,7 +225,7 @@ const Booking = () => {
                 <h3>Choose dates</h3>
               </div>
 
-               <div className="booking-divider"></div>
+              <div className="booking-divider"></div>
 
               <div className="booking-field">
                 <p>Choose a date?</p>
@@ -327,6 +335,17 @@ const Booking = () => {
             <div className="summary-item">
               <span>▦</span>
               <p>Wed. 09/09/2026</p>
+            </div>
+
+            <div className="summary-item">
+              <span className="summary-icon summary-icon--reload">↻</span>
+              <p>
+                {frequency === "ONE-TIME"
+                  ? "One-Time"
+                  : frequency === "BI-WEEKLY"
+                    ? "Bi-Weekly"
+                    : frequency.charAt(0) + frequency.slice(1).toLowerCase()}
+              </p>
             </div>
 
             <div className="summary-total">
