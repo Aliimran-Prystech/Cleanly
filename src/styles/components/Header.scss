@@ -91,8 +91,22 @@
     background-color: $primary-color;
     color: $white;
 
+    // &:hover {
+    //   background-color: darken($primary-color, 8%);
+    // }
+  }
+
+  &__phone {
+    color: #212529;
+    font-family: Helvetica, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1.5;
+    text-decoration: none;
+    white-space: nowrap;
+
     &:hover {
-      background-color: darken($primary-color, 8%);
+      color: $primary-color;
     }
   }
 
@@ -116,9 +130,9 @@
     height: 42px;
 
     background-color: transparent;
-    border: 2px solid #c88d1d;
+    border: 2px solid #41403d;
     border-radius: 6px;
-
+    padding-right: 8px;
     cursor: pointer;
 
     flex-direction: column;
@@ -137,6 +151,10 @@
       background-color: #687078;
 
       transition: all 0.3s ease;
+    }
+
+    &:hover {
+      background-color: #fff;
     }
   }
 
@@ -207,6 +225,14 @@
         max-height: 400px;
         opacity: 1;
       }
+
+      .header__book-btn {
+        color: #fff;
+      }
+
+      &:hover .header__book-btn {
+        color: #fff;
+      }
     }
 
     &__mobile-nav {
@@ -244,9 +270,7 @@
       .header__login-btn {
         width: 185px;
         margin-top: 10px;
-
         min-height: 44px;
-
         text-align: center;
       }
 

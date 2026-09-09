@@ -31,7 +31,16 @@ const App = () => {
   return (
     <Routes>
       <Route path="/" element={<Home />} />
-      <Route path="/booking" element={<Booking />} />
+      <Route
+        path="/booking"
+        element={
+          <>
+          <Header />
+            <Booking />
+            <Footer />
+          </>
+        }
+      />
     </Routes>
   );
 };
