@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/components/HeroSection.scss";
 
 const HeroSection = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className="hero">
       {/* Background Image */}
@@ -30,7 +34,7 @@ const HeroSection = () => {
 
             <input type="text" placeholder="Zip Code" />
 
-            <button type="submit">
+            <button type="button" onClick={() => navigate("/booking")}>
               Continue <span>›</span>
             </button>
           </div>

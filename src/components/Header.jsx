@@ -1,5 +1,6 @@
 import { useState } from "react";
 import "../styles/components/Header.scss";
+import { Link } from "react-router-dom";
 
 const Header = () => {
   const [menuOpen, setMenuOpen] = useState(false);
@@ -26,7 +27,11 @@ const Header = () => {
             <a href="#services">Our Services</a>
           </nav>
 
-          <button className="header__book-btn">Book a Cleaning</button>
+          <Link to="/booking" className="header__book-btn">
+            Book a Cleaning
+          </Link>
+
+          {/* <button className="header__book-btn">Book a Cleaning</button> */}
 
           <button className="header__login-btn">Login</button>
         </div>
@@ -54,9 +59,9 @@ const Header = () => {
             Our Services
           </a>
 
-          <button className="header__book-btn" onClick={closeMenu}>
+          <Link to="/booking" className="header__book-btn" onClick={closeMenu}>
             Book a Cleaning
-          </button>
+          </Link>
 
           <button className="header__login-btn" onClick={closeMenu}>
             Log In

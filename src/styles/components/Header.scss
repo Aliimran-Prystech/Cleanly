@@ -77,6 +77,14 @@
     }
   }
 
+  &__book-btn,
+&__login-btn {
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+
   // Book button
   &__book-btn {
     border: 1px solid $primary-color;
