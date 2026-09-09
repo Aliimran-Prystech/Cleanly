@@ -1,522 +1,264 @@
-import { useState, useEffect } from 'react';
+import { useEffect, useState } from 'react';
 import axios from 'axios';
-import Header from '../components/Header';
+import { Eye, Plus, X } from 'lucide-react';
+import Header from './Header';
 import '../styles/components/Dashboard.scss';
 
-const Dashboard = ({ isLoggedIn, handleLogout }) => {
-  const [activeTab, setActiveTab] = useState('cleanings');
+const API_BASE_URL = 'http://localhost:5000/api';
 
-  const [cleanings, setCleanings] = useState([]);
+const defaultServices = {
+  baseTypes: { standard: 80, deep: 140, moveInOut: 200 },
+  perRoomRate: 50,
+  perBathRate: 60,
+  addons: [],
+  frequencyDiscounts: { oneTime: 0, weekly: 25, biWeekly: 15, monthly: 10 }
+};
+
+const tabs = [
+  { id: 'bookings', label: 'Cleanings' },
+  { id: 'cleaners', label: 'Cleaners' },
+  { id: 'services', label: 'Services' }
+];
+
+const getId = (item) => item?._id || item?.id;
+
+const formatDate = (value) => {
+  if (!value) return '-';
+  const date = String(value).slice(0, 10).split('-');
+  if (date.length === 3 && date[0].length === 4) return `${date[1]}-${date[2]}-${date[0]}`;
+  return value;
+};
+
+const formatLabel = (value) => String(value || '-').replace(/-/g, ' ');
+const getServiceConfig = (response) => response?.serviceConfig || response?.data || response;
+const getAssignedCleanerIds = (booking) => {
+  const assigned = Array.isArray(booking?.assignedCleaner)
+    ? booking.assignedCleaner
+    : Array.isArray(booking?.assignedCleaners)
+      ? booking.assignedCleaners
+      : booking?.assignedCleaner
+        ? [booking.assignedCleaner]
+        : [];
+  return assigned.map((cleaner) => getId(cleaner) || cleaner).filter(Boolean);
+};
+
+const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
+  const [activeTab, setActiveTab] = useState('bookings');
+  const [bookings, setBookings] = useState([]);
   const [cleaners, setCleaners] = useState([]);
-  const [services, setServices] = useState({
-    deep: {
-      bedroomCost: 75,
-      bathroomCost: 85,
-      ovenAddon: 100,
-      windowAddon: 75,
-      fridgeAddon: 100,
-    },
-    moveInOut: {
-      bedroomCost: 100,
-      bathroomCost: 100,
-      ovenAddon: 75,
-      windowAddon: 50,
-      fridgeAddon: 50,
-    },
-    standard: {
-      bedroomCost: 55,
-      bathroomCost: 65,
-      ovenAddon: 20,
-      windowAddon: 20,
-      fridgeAddon: 20,
-    },
-    discounts: {
-      oneTime: 0,
-      weekly: 25,
-      biWeekly: 0,
-      monthly: 0,
-    },
-  });
+  const [serviceConfig, setServiceConfig] = useState(defaultServices);
+  const [selectedBooking, setSelectedBooking] = useState(null);
+  const [cleanerForm, setCleanerForm] = useState({ name: '', email: '', phone: '' });
+  const [editingCleaner, setEditingCleaner] = useState(null);
+  const [modal, setModal] = useState(null);
+  const [savingServices, setSavingServices] = useState(false);
+  const [error, setError] = useState('');
 
-  // Modal / Form States
-  const [showCleanerModal, setShowCleanerModal] = useState(false);
-  const [newCleaner, setNewCleaner] = useState({ name: '', email: '', phone: '' });
-
-  // Fetch initial data from your MongoDB API endpoints
-  useEffect(() => {
-    const fetchData = async () => {
-      try {
-        const token = localStorage.getItem('token');
-        const config = { headers: { Authorization: `Bearer ${token}` } };
-
-        const [cleaningsRes, cleanersRes, servicesRes] = await Promise.allSettled([
-          axios.get('http://localhost:5000/api/cleanings', config),
-          axios.get('http://localhost:5000/api/cleaners', config),
-          axios.get('http://localhost:5000/api/services', config),
-        ]);
-
-        if (cleaningsRes.status === 'fulfilled') setCleanings(cleaningsRes.value.data);
-        if (cleanersRes.status === 'fulfilled') setCleaners(cleanersRes.value.data);
-        if (servicesRes.status === 'fulfilled' && servicesRes.value.data) {
-          setServices(servicesRes.value.data);
-        }
-      } catch (err) {
-        console.error('Error loading dashboard data:', err);
-      }
-    };
-
-    fetchData();
-  }, []);
-
-  // Handler for Cleaner Assignment Multi-select
-  const handleAssignCleaner = async (cleaningId, cleanerName) => {
-    const updated = cleanings.map((item) => {
-      if (item._id === cleaningId || item.id === cleaningId) {
-        const currentCleaners = item.cleaners || [];
-        if (!currentCleaners.includes(cleanerName)) {
-          return { ...item, cleaners: [...currentCleaners, cleanerName] };
-        }
-      }
-      return item;
-    });
-    setCleanings(updated);
-  };
-
-  const handleRemoveCleaner = (cleaningId, cleanerName) => {
-    const updated = cleanings.map((item) => {
-      if (item._id === cleaningId || item.id === cleaningId) {
-        return {
-          ...item,
-          cleaners: (item.cleaners || []).filter((c) => c !== cleanerName),
-        };
-      }
-      return item;
-    });
-    setCleanings(updated);
-  };
-
-  // Add Cleaner Handler
-  const handleAddCleanerSubmit = async (e) => {
-    e.preventDefault();
+  const loadData = async () => {
+    setError('');
     try {
-      const res = await axios.post('http://localhost:5000/api/cleaners', newCleaner);
-      setCleaners([...cleaners, res.data]);
-      setNewCleaner({ name: '', email: '', phone: '' });
-      setShowCleanerModal(false);
-    } catch (err) {
-      console.error('Error adding cleaner:', err);
+      const [bookingResponse, cleanerResponse, serviceResponse] = await Promise.all([
+        axios.get(`${API_BASE_URL}/bookings`),
+        axios.get(`${API_BASE_URL}/cleaners`),
+        axios.get(`${API_BASE_URL}/services`)
+      ]);
+
+      setBookings(bookingResponse.data?.bookings || []);
+      setCleaners(cleanerResponse.data?.cleaners || []);
+      const savedServices = getServiceConfig(serviceResponse.data);
+      setServiceConfig({
+        ...defaultServices,
+        ...savedServices,
+        baseTypes: { ...defaultServices.baseTypes, ...(savedServices?.baseTypes || {}) },
+        frequencyDiscounts: { ...defaultServices.frequencyDiscounts, ...(savedServices?.frequencyDiscounts || {}) },
+        addons: Array.isArray(savedServices?.addons) ? savedServices.addons : []
+      });
+    } catch (loadError) {
+      console.error('Dashboard data load failed:', loadError);
+      setError('Unable to load dashboard data. Check that the backend is running.');
     }
   };
 
-  // Service pricing input handler
-  const handleServiceChange = (category, field, value) => {
-    setServices((prev) => ({
-      ...prev,
-      [category]: {
-        ...prev[category],
-        [field]: value,
-      },
+  useEffect(() => {
+    const loadTimer = window.setTimeout(loadData, 0);
+    return () => window.clearTimeout(loadTimer);
+  }, []);
+
+  const updateServiceValue = (section, key, value) => {
+    setServiceConfig((current) => ({
+      ...current,
+      [section]: { ...current[section], [key]: Number(value) }
     }));
+  };
+
+  const updateBookingCleaners = async (booking, cleanerIds) => {
+    const bookingId = getId(booking);
+    const payload = {
+      customerName: booking.customerName,
+      customerEmail: booking.customerEmail,
+      customerPhone: booking.customerPhone,
+      address: booking.address,
+      zipCode: booking.zipCode,
+      cleaningType: booking.cleaningType,
+      frequency: booking.frequency,
+      bedrooms: booking.bedrooms,
+      bathrooms: booking.bathrooms,
+      extras: booking.extras || [],
+      specialReq: booking.specialReq || '',
+      bookingDate: booking.bookingDate,
+      timeSlot: booking.timeSlot,
+      assignedCleaners: cleanerIds,
+      assignedCleaner: cleanerIds,
+      status: booking.status
+    };
+
+    try {
+      const response = await axios.put(`${API_BASE_URL}/bookings/${bookingId}`, payload);
+      const updatedBooking = response.data?.booking;
+      setBookings((current) => current.map((item) => (getId(item) === bookingId ? updatedBooking : item)));
+    } catch (updateError) {
+      console.error('Cleaner assignment failed:', updateError);
+      setError('Unable to save the cleaner assignment.');
+    }
+  };
+
+  const toggleBookingCleaner = (booking, cleanerId) => {
+    const assignedIds = getAssignedCleanerIds(booking);
+    const nextIds = assignedIds.includes(cleanerId)
+      ? assignedIds.filter((id) => id !== cleanerId)
+      : [...assignedIds, cleanerId];
+    updateBookingCleaners(booking, nextIds);
+  };
+
+  const deleteBooking = async (bookingId) => {
+    if (!window.confirm('Delete this booking?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/bookings/${bookingId}`);
+      setBookings((current) => current.filter((booking) => getId(booking) !== bookingId));
+    } catch (deleteError) {
+      console.error('Booking deletion failed:', deleteError);
+      setError('Unable to delete this booking.');
+    }
+  };
+
+  const openCleanerModal = (cleaner = null) => {
+    setEditingCleaner(cleaner);
+    setCleanerForm({ name: cleaner?.name || '', email: cleaner?.email || '', phone: cleaner?.phone || '' });
+    setModal('cleaner');
+  };
+
+  const saveCleaner = async (event) => {
+    event.preventDefault();
+    try {
+      const url = editingCleaner ? `${API_BASE_URL}/cleaners/${getId(editingCleaner)}` : `${API_BASE_URL}/cleaners`;
+      const response = editingCleaner ? await axios.put(url, cleanerForm) : await axios.post(url, cleanerForm);
+      const savedCleaner = response.data?.cleaner;
+      setCleaners((current) => editingCleaner
+        ? current.map((cleaner) => (getId(cleaner) === getId(editingCleaner) ? savedCleaner : cleaner))
+        : [savedCleaner, ...current]);
+      setModal(null);
+    } catch (saveError) {
+      console.error('Cleaner save failed:', saveError);
+      setError('Unable to save this cleaner.');
+    }
+  };
+
+  const deleteCleaner = async (cleanerId) => {
+    if (!window.confirm('Delete this cleaner?')) return;
+    try {
+      await axios.delete(`${API_BASE_URL}/cleaners/${cleanerId}`);
+      setCleaners((current) => current.filter((cleaner) => getId(cleaner) !== cleanerId));
+    } catch (deleteError) {
+      console.error('Cleaner deletion failed:', deleteError);
+      setError('Unable to delete this cleaner.');
+    }
+  };
+
+  const saveServices = async () => {
+    setSavingServices(true);
+    try {
+      const response = await axios.put(`${API_BASE_URL}/services/config`, serviceConfig);
+      setServiceConfig(getServiceConfig(response.data));
+    } catch (saveError) {
+      console.error('Service configuration save failed:', saveError);
+      setError('Unable to save service pricing.');
+    } finally {
+      setSavingServices(false);
+    }
   };
 
   return (
     <div className="dashboard-page">
       <Header isLoggedIn={isLoggedIn} onLogout={handleLogout} />
-
       <main className="dashboard-container">
-        {/* Top Tab Navigation */}
-        <div className="dashboard-tabs">
-          <button
-            type="button"
-            className={`tab-btn ${activeTab === 'cleanings' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cleanings')}
-          >
-            Cleanings
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${activeTab === 'cleaners' ? 'active' : ''}`}
-            onClick={() => setActiveTab('cleaners')}
-          >
-            Cleaners
-          </button>
-          <button
-            type="button"
-            className={`tab-btn ${activeTab === 'services' ? 'active' : ''}`}
-            onClick={() => setActiveTab('services')}
-          >
-            Services
-          </button>
-        </div>
+        <nav className="dashboard-tabs" aria-label="Dashboard sections">
+          {tabs.map((tab) => <button type="button" className={`tab-btn ${activeTab === tab.id ? 'active' : ''}`} key={tab.id} onClick={() => setActiveTab(tab.id)}>{tab.label}</button>)}
+        </nav>
 
-        {/* TAB 1: CLEANINGS TABLE */}
-        {activeTab === 'cleanings' && (
-          <div className="tab-card">
+        {error && <div className="dashboard-alert">{error}</div>}
+
+        {activeTab === 'bookings' && (
+          <section className="tab-card">
             <div className="card-header-bar">Cleanings</div>
-            <div className="card-body">
-              <table className="dash-table">
-                <thead>
-                  <tr>
-                    <th>ID</th>
-                    <th>Cleaning Type</th>
-                    <th>Date</th>
-                    <th>Time</th>
-                    <th>Cleaner</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
+            <div className="card-body table-scroll">
+              <table className="dash-table bookings-table">
+                <thead><tr><th>ID</th><th>Cleaning Type</th><th>Date</th><th>Time</th><th>Cleaner</th><th>Actions</th></tr></thead>
                 <tbody>
-                  {cleanings.map((row, index) => (
-                    <tr key={row._id || index}>
-                      <td>{index + 1}</td>
-                      <td>{row.type || 'standard'}</td>
-                      <td>{row.date}</td>
-                      <td>{row.time}</td>
-                      <td>
-                        <div className="cleaner-select-wrapper">
-                          <div className="tags-container">
-                            {(row.cleaners || []).map((c) => (
-                              <span key={c} className="cleaner-tag">
-                                {c}
-                                <button
-                                  type="button"
-                                  onClick={() => handleRemoveCleaner(row._id || row.id, c)}
-                                >
-                                  &times;
-                                </button>
-                              </span>
-                            ))}
-                            <select
-                              value=""
-                              onChange={(e) => {
-                                if (e.target.value) {
-                                  handleAssignCleaner(row._id || row.id, e.target.value);
-                                }
-                              }}
-                            >
-                              <option value="">Select...</option>
-                              {cleaners.map((cl) => (
-                                <option key={cl._id || cl.id} value={cl.name}>
-                                  {cl.name}
-                                </option>
-                              ))}
-                            </select>
-                          </div>
-                        </div>
-                      </td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-icon btn-view" title="View details">
-                            👁
-                          </button>
-                          <button className="btn-icon btn-delete" title="Delete">
-                            ✕
-                          </button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
+                  {bookings.map((booking, index) => {
+                    const bookingId = getId(booking);
+                    const assignedIds = getAssignedCleanerIds(booking);
+                    return <tr key={bookingId || index}><td>{index + 1}</td><td>{formatLabel(booking.cleaningType)}</td><td>{formatDate(booking.bookingDate)}</td><td>{booking.timeSlot || '-'}</td><td><div className="cleaner-assignment"><div className="cleaner-chips">{assignedIds.map((cleanerId) => <span className="cleaner-chip" key={cleanerId}>{cleaners.find((cleaner) => getId(cleaner) === cleanerId)?.name || cleanerId}<button type="button" aria-label="Remove cleaner" onClick={() => toggleBookingCleaner(booking, cleanerId)}><X size={12} /></button></span>)}</div><select aria-label={`Add cleaner to booking ${index + 1}`} value="" onChange={(event) => toggleBookingCleaner(booking, event.target.value)}><option value="">Select...</option>{cleaners.filter((cleaner) => !assignedIds.includes(getId(cleaner))).map((cleaner) => <option key={getId(cleaner)} value={getId(cleaner)}>{cleaner.name}</option>)}</select></div></td><td className="action-buttons"><button type="button" className="icon-button view" title="View booking" onClick={() => { setSelectedBooking(booking); setModal('booking'); }}><Eye size={16} /></button><button type="button" className="icon-button delete" title="Delete booking" onClick={() => deleteBooking(bookingId)}><X size={17} /></button></td></tr>;
+                  })}
+                  {!bookings.length && <tr><td className="empty-state" colSpan="6">No bookings found.</td></tr>}
                 </tbody>
               </table>
             </div>
-          </div>
+          </section>
         )}
 
-        {/* TAB 2: CLEANERS TABLE */}
         {activeTab === 'cleaners' && (
-          <div className="tab-card">
-            <div className="card-header-bar flex-between">
-              <span>Cleaners</span>
-              <button className="btn-primary" onClick={() => setShowCleanerModal(true)}>
-                Add Cleaner
-              </button>
-            </div>
-            <div className="card-body">
-              <table className="dash-table cleaners-table">
-                <thead>
-                  <tr>
-                    <th>#</th>
-                    <th>Name</th>
-                    <th>Email</th>
-                    <th>Phone</th>
-                    <th className="text-center">Actions</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  {cleaners.map((c, index) => (
-                    <tr key={c._id || index}>
-                      <td>{index + 1}</td>
-                      <td>{c.name}</td>
-                      <td>{c.email}</td>
-                      <td>{c.phone}</td>
-                      <td>
-                        <div className="action-buttons">
-                          <button className="btn-edit">Edit</button>
-                          <button className="btn-delete-solid">Delete</button>
-                        </div>
-                      </td>
-                    </tr>
-                  ))}
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <section className="tab-card">
+            <div className="card-header-bar card-header-actions"><span>Cleaners</span><button type="button" className="primary-button" onClick={() => openCleanerModal()}><Plus size={16} /> Add Cleaner</button></div>
+            <div className="card-body table-scroll"><table className="dash-table"><thead><tr><th>Name</th><th>Email</th><th>Phone</th><th>Actions</th></tr></thead><tbody>{cleaners.map((cleaner) => <tr key={getId(cleaner)}><td>{cleaner.name}</td><td>{cleaner.email}</td><td>{cleaner.phone}</td><td className="action-buttons"><button type="button" className="text-button" onClick={() => openCleanerModal(cleaner)}>Edit</button><button type="button" className="text-button danger" onClick={() => deleteCleaner(getId(cleaner))}>Delete</button></td></tr>)}{!cleaners.length && <tr><td className="empty-state" colSpan="4">No cleaners found.</td></tr>}</tbody></table></div>
+          </section>
         )}
 
-        {/* TAB 3: SERVICES PRICING */}
         {activeTab === 'services' && (
-          <div className="tab-card">
-            <div className="card-header-bar">Service Pricing</div>
-            <div className="card-body space-y">
-              {/* DEEP */}
-              <div className="pricing-section">
-                <div className="section-title">DEEP</div>
-                <div className="form-grid">
-                  <div className="input-field">
-                    <label>Cost Per Bedroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.deep.bedroomCost}
-                        onChange={(e) => handleServiceChange('deep', 'bedroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Cost Per Bathroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.deep.bathroomCost}
-                        onChange={(e) => handleServiceChange('deep', 'bathroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Oven Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.deep.ovenAddon}
-                        onChange={(e) => handleServiceChange('deep', 'ovenAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Window Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.deep.windowAddon}
-                        onChange={(e) => handleServiceChange('deep', 'windowAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Fridge Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.deep.fridgeAddon}
-                        onChange={(e) => handleServiceChange('deep', 'fridgeAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* MOVE IN OUT */}
-              <div className="pricing-section">
-                <div className="section-title">MOVE IN OUT</div>
-                <div className="form-grid">
-                  <div className="input-field">
-                    <label>Cost Per Bedroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.moveInOut.bedroomCost}
-                        onChange={(e) => handleServiceChange('moveInOut', 'bedroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Cost Per Bathroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.moveInOut.bathroomCost}
-                        onChange={(e) => handleServiceChange('moveInOut', 'bathroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Oven Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.moveInOut.ovenAddon}
-                        onChange={(e) => handleServiceChange('moveInOut', 'ovenAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Window Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.moveInOut.windowAddon}
-                        onChange={(e) => handleServiceChange('moveInOut', 'windowAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Addon - Fridge Cleaning</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.moveInOut.fridgeAddon}
-                        onChange={(e) => handleServiceChange('moveInOut', 'fridgeAddon', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* STANDARD */}
-              <div className="pricing-section">
-                <div className="section-title">STANDARD</div>
-                <div className="form-grid">
-                  <div className="input-field">
-                    <label>Cost Per Bedroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.standard.bedroomCost}
-                        onChange={(e) => handleServiceChange('standard', 'bedroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>Cost Per Bathroom</label>
-                    <div className="input-addon">
-                      <span className="badge-prefix">$</span>
-                      <input
-                        type="number"
-                        value={services.standard.bathroomCost}
-                        onChange={(e) => handleServiceChange('standard', 'bathroomCost', e.target.value)}
-                      />
-                    </div>
-                  </div>
-                </div>
-              </div>
-
-              {/* DISCOUNTS */}
-              <div className="pricing-section">
-                <div className="section-title">DISCOUNTS</div>
-                <div className="form-grid">
-                  <div className="input-field">
-                    <label>ONE-TIME</label>
-                    <div className="input-addon suffix-mode">
-                      <input
-                        type="number"
-                        value={services.discounts.oneTime}
-                        onChange={(e) => handleServiceChange('discounts', 'oneTime', e.target.value)}
-                      />
-                      <span className="badge-suffix">%</span>
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>WEEKLY</label>
-                    <div className="input-addon suffix-mode">
-                      <input
-                        type="number"
-                        value={services.discounts.weekly}
-                        onChange={(e) => handleServiceChange('discounts', 'weekly', e.target.value)}
-                      />
-                      <span className="badge-suffix">%</span>
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>BI-WEEKLY</label>
-                    <div className="input-addon suffix-mode">
-                      <input
-                        type="number"
-                        value={services.discounts.biWeekly}
-                        onChange={(e) => handleServiceChange('discounts', 'biWeekly', e.target.value)}
-                      />
-                      <span className="badge-suffix">%</span>
-                    </div>
-                  </div>
-                  <div className="input-field">
-                    <label>MONTHLY</label>
-                    <div className="input-addon suffix-mode">
-                      <input
-                        type="number"
-                        value={services.discounts.monthly}
-                        onChange={(e) => handleServiceChange('discounts', 'monthly', e.target.value)}
-                      />
-                      <span className="badge-suffix">%</span>
-                    </div>
-                  </div>
-                </div>
-              </div>
+          <section className="tab-card services-card">
+            <div className="card-header-bar card-header-actions"><span>Service Pricing</span><button type="button" className="primary-button" onClick={saveServices} disabled={savingServices}>{savingServices ? 'Saving...' : 'Save Changes'}</button></div>
+            <div className="card-body service-sections">
+              {[['DEEP', 'deep'], ['MOVE IN-OUT', 'moveInOut'], ['STANDARD', 'standard']].map(([label, key]) => <div className="service-group" key={key}><div className="group-header">{label}</div><div className="group-body"><PriceInput label="Base Price" value={serviceConfig.baseTypes[key]} onChange={(value) => updateServiceValue('baseTypes', key, value)} /><PriceInput label="Cost Per Bedroom" value={serviceConfig.perRoomRate} onChange={(value) => setServiceConfig((current) => ({ ...current, perRoomRate: Number(value) }))} /><PriceInput label="Cost Per Bathroom" value={serviceConfig.perBathRate} onChange={(value) => setServiceConfig((current) => ({ ...current, perBathRate: Number(value) }))} />{serviceConfig.addons.map((addon, index) => <PriceInput key={`${addon.name}-${index}`} label={`Addon - ${addon.name}`} value={addon.price} onChange={(value) => setServiceConfig((current) => ({ ...current, addons: current.addons.map((item, itemIndex) => itemIndex === index ? { ...item, price: Number(value) } : item) }))} />)}</div></div>)}
+              <div className="service-group"><div className="group-header">DISCOUNTS</div><div className="group-body">{[['ONE-TIME', 'oneTime'], ['WEEKLY', 'weekly'], ['BI-WEEKLY', 'biWeekly'], ['MONTHLY', 'monthly']].map(([label, key]) => <PriceInput key={key} label={label} suffix="%" value={serviceConfig.frequencyDiscounts[key]} onChange={(value) => updateServiceValue('frequencyDiscounts', key, value)} />)}</div></div>
             </div>
-          </div>
+          </section>
         )}
       </main>
 
-      {/* Add Cleaner Modal */}
-      {showCleanerModal && (
-        <div className="modal-overlay">
-          <div className="modal-box">
-            <h3>Add New Cleaner</h3>
-            <form onSubmit={handleAddCleanerSubmit}>
-              <input
-                type="text"
-                placeholder="Full Name"
-                value={newCleaner.name}
-                onChange={(e) => setNewCleaner({ ...newCleaner, name: e.target.value })}
-                required
-              />
-              <input
-                type="email"
-                placeholder="Email Address"
-                value={newCleaner.email}
-                onChange={(e) => setNewCleaner({ ...newCleaner, email: e.target.value })}
-                required
-              />
-              <input
-                type="text"
-                placeholder="Phone Number"
-                value={newCleaner.phone}
-                onChange={(e) => setNewCleaner({ ...newCleaner, phone: e.target.value })}
-                required
-              />
-              <div className="modal-actions">
-                <button type="button" className="btn-cancel" onClick={() => setShowCleanerModal(false)}>
-                  Cancel
-                </button>
-                <button type="submit" className="btn-primary">
-                  Save Cleaner
-                </button>
-              </div>
-            </form>
-          </div>
-        </div>
-      )}
+      {modal === 'booking' && selectedBooking && <Modal title="Full Details" onClose={() => setModal(null)}><dl className="booking-details">{[
+        ['date', formatDate(selectedBooking.bookingDate)],
+        ['cleaningType', formatLabel(selectedBooking.cleaningType)],
+        ['cost', Number(selectedBooking.totalCost ?? 0).toFixed(2)],
+        ['time', selectedBooking.timeSlot],
+        ['extraService', selectedBooking.extras?.join(', ') || ''],
+        ['email', selectedBooking.customerEmail],
+        ['phoneNum', selectedBooking.customerPhone],
+        ['cleaners', getAssignedCleanerIds(selectedBooking).map((id) => cleaners.find((cleaner) => getId(cleaner) === id)?.name || id).join(', ')],
+        ['cleaningOccurance', selectedBooking.frequency],
+        ['name', selectedBooking.customerName],
+        ['dateCreated', selectedBooking.createdAt],
+        ['zipCode', selectedBooking.zipCode],
+        ['specialRequirements', selectedBooking.specialReq || ''],
+        ['address', selectedBooking.address],
+        ['bedrooms', selectedBooking.bedrooms],
+        ['bathrooms', selectedBooking.bathrooms]
+      ].map(([label, value]) => <div key={label}><dt>{label}</dt><dd>{value ?? ''}</dd></div>)}</dl></Modal>}
+      {modal === 'cleaner' && <Modal title={editingCleaner ? 'Edit Cleaner' : 'Add Cleaner'} onClose={() => setModal(null)}><form className="cleaner-form" onSubmit={saveCleaner}><label>Name<input required value={cleanerForm.name} onChange={(event) => setCleanerForm({ ...cleanerForm, name: event.target.value })} /></label><label>Email<input required type="email" value={cleanerForm.email} onChange={(event) => setCleanerForm({ ...cleanerForm, email: event.target.value })} /></label><label>Phone<input required value={cleanerForm.phone} onChange={(event) => setCleanerForm({ ...cleanerForm, phone: event.target.value })} /></label><button className="primary-button" type="submit">Save Cleaner</button></form></Modal>}
     </div>
   );
 };
+
+const PriceInput = ({ label, value, suffix, onChange }) => <label className="service-field"><span>{label}</span><div className={`input-control ${suffix ? 'has-suffix' : ''}`}>{!suffix && <b>$</b>}<input type="number" min="0" value={value ?? 0} onChange={(event) => onChange(event.target.value)} />{suffix && <b>{suffix}</b>}</div></label>;
+
+const Modal = ({ title, onClose, children }) => <div className="modal-overlay" role="presentation" onMouseDown={(event) => event.target === event.currentTarget && onClose()}><div className="modal"><div className="modal-header"><h2>{title}</h2><button type="button" onClick={onClose} aria-label="Close"><X size={20} /></button></div><div className="modal-body">{children}</div></div></div>;
 
 export default Dashboard;

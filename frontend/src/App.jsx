@@ -10,6 +10,7 @@ import CleaningServices from "./components/CleaningServices";
 import BottomCTA from "./components/BottomCTA";
 import Footer from "./components/Footer";
 import Auth from "./components/Auth";
+import Dashboard from "./components/Dashboard";
 
 const Home = ({ isLoggedIn, handleLogout }) => (
   <main className="home-layout">
@@ -45,6 +46,10 @@ const App = () => {
         <Route
           path="/auth"
           element={<Auth setIsLoggedIn={setIsLoggedIn} />}
+        />
+        <Route 
+        path="/dashboard" 
+        element={<Dashboard isLoggedIn={isLoggedIn} handleLogout={handleLogout} />} 
         />
       </Routes>
       <Footer />

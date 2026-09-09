@@ -1,150 +1,140 @@
-@use "../variables" as *;
-
-.auth-page {
-  min-height: 100vh;
-  display: flex;
-  flex-direction: column;
-  background-color: #f8fafc;
-
-  // Header
-  .auth-header {
+/* Service Pricing Custom Section Formatting */
+.services-pricing-card {
+  .service-sections-container {
     display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: 1.5rem 4rem;
-    max-width: 1280px;
-    margin: 0 auto;
-    width: 100%;
-    box-sizing: border-box;
+    flex-direction: column;
+    gap: 20px;
+    padding: 15px;
+  }
 
-    .auth-logo-link img {
-      height: 38px;
-      width: auto;
-      display: block;
+  .service-group-box {
+    border: 1px solid #e2e8f0;
+    border-radius: 4px;
+    background: #fff;
+    overflow: hidden;
+
+    .group-header {
+      background: #f8fafc;
+      padding: 12px 16px;
+      font-weight: 600;
+      font-size: 0.9rem;
+      color: #334155;
+      border-bottom: 1px solid #e2e8f0;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
     }
 
-    .phone-number {
-      font-size: 1.2rem;
-      font-weight: 700;
-      color: $dark-color;
+    .group-body {
+      padding: 16px;
+      display: flex;
+      flex-direction: column;
+      gap: 16px;
     }
 
-    @media (max-width: 768px) {
-      padding: 1rem 1.5rem;
+    .service-field-row {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
 
-      .auth-logo-link img {
-        height: 30px;
+      label {
+        font-size: 0.85rem;
+        color: #475569;
+        font-weight: 500;
       }
 
-      .phone-number {
-        font-size: 1rem;
+      /* Prefix styling for Currency ($) */
+      .input-with-prefix {
+        display: flex;
+        align-items: center;
+
+        .prefix-box {
+          background-color: #3dbbd2;
+          color: white;
+          padding: 8px 16px;
+          font-weight: bold;
+          font-size: 0.9rem;
+          border-top-left-radius: 4px;
+          border-bottom-left-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 40px;
+        }
+
+        input {
+          flex: 1;
+          border: 1px solid #cbd5e1;
+          border-left: none;
+          border-top-right-radius: 4px;
+          border-bottom-right-radius: 4px;
+          padding: 8px 12px;
+          outline: none;
+          font-size: 0.9rem;
+
+          &:focus {
+            border-color: #3dbbd2;
+          }
+        }
+      }
+
+      /* Suffix styling for Percentages (%) */
+      .input-with-suffix {
+        display: flex;
+        align-items: center;
+
+        input {
+          flex: 1;
+          border: 1px solid #cbd5e1;
+          border-right: none;
+          border-top-left-radius: 4px;
+          border-bottom-left-radius: 4px;
+          padding: 8px 12px;
+          outline: none;
+          font-size: 0.9rem;
+
+          &:focus {
+            border-color: #3dbbd2;
+          }
+        }
+
+        .suffix-box {
+          background-color: #3dbbd2;
+          color: white;
+          padding: 8px 16px;
+          font-weight: bold;
+          font-size: 0.9rem;
+          border-top-right-radius: 4px;
+          border-bottom-right-radius: 4px;
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          min-width: 40px;
+        }
       }
     }
   }
+}
 
-  // Auth Card Container
-  .auth-container {
-    flex: 1;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    padding: 2rem 1rem;
-    box-sizing: border-box;
+/* Action Button Adjustments */
+.btn-icon {
+  border: none;
+  border-radius: 4px;
+  width: 32px;
+  height: 32px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  color: white;
+  margin: 0 2px;
 
-    .auth-card {
-      width: 100%;
-      max-width: 420px;
-      background-color: $white;
-      border: 1px solid #e2e8f0;
-      border-radius: 8px;
-      box-shadow: 0 4px 20px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
+  &.btn-view {
+    background-color: #5c6b73;
+    &:hover { background-color: #4a575d; }
+  }
 
-      .auth-tabs {
-        display: flex;
-        border-bottom: 1px solid #e2e8f0;
-
-        .tab-btn {
-          all: unset; // Prevents global button styling leaks
-          flex: 1;
-          padding: 1rem;
-          text-align: center;
-          font-size: 1rem;
-          font-weight: 600;
-          color: #54aabd;
-          cursor: pointer;
-          transition: background-color 0.2s ease, color 0.2s ease;
-          box-sizing: border-box;
-
-          &.active {
-            background-color: #54aabd;
-            color: $white;
-          }
-
-          &:hover:not(.active) {
-            background-color: #f1f5f9;
-          }
-        }
-      }
-
-      .auth-form {
-        padding: 2rem;
-        display: flex;
-        flex-direction: column;
-        gap: 1.25rem;
-
-        @media (max-width: 480px) {
-          padding: 1.5rem 1rem;
-        }
-
-        .error-message {
-          color: #e53e3e;
-          background-color: #fff5f5;
-          border: 1px solid #fed7d7;
-          padding: 0.75rem;
-          border-radius: 4px;
-          font-size: 0.875rem;
-          text-align: center;
-        }
-
-        .input-group input {
-          width: 100%;
-          padding: 0.75rem 1rem;
-          border: 1px solid #cbd5e1;
-          border-radius: 6px;
-          font-size: 0.95rem;
-          box-sizing: border-box;
-          outline: none;
-
-          &:focus {
-            border-color: #54aabd;
-            box-shadow: 0 0 0 3px rgba(84, 170, 189, 0.15);
-          }
-        }
-
-        .submit-btn {
-          all: unset; // Prevents global button styling leaks
-          width: 100%;
-          padding: 0.85rem;
-          text-align: center;
-          background-color: #54aabd;
-          color: $white;
-          font-weight: 600;
-          border-radius: 6px;
-          cursor: pointer;
-          box-sizing: border-box;
-          transition: background-color 0.2s ease;
-
-          &:hover {
-            background-color: #3d92a5;
-          }
-
-          &:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-          }
-        }
-      }
-    }
+  &.btn-delete {
+    background-color: #ef4444;
+    &:hover { background-color: #dc2626; }
   }
 }

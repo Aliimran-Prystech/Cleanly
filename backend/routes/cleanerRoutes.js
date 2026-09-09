@@ -31,7 +31,7 @@ router.get('/', async(req, res) => {
 router.put('/:id', async(req, res) => {
     try {
         const updatedCleaner = await Cleaner.findByIdAndUpdate(
-            req.params.id, {...req.body}
+            req.params.id, {...req.body}, { new: true }
         );
 
         if(!updatedCleaner){
@@ -46,7 +46,7 @@ router.put('/:id', async(req, res) => {
 
 router.delete('/:id', async(req, res) => {
     try{
-        const deleteCleaner = awaitCleaner.findByIdAndDelete(req.params.id);
+        const deleteCleaner = await Cleaner.findByIdAndDelete(req.params.id);
 
         if(!deleteCleaner){
             res.status(500).json({success:false, message: 'Cleaner not found'})

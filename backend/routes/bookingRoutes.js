@@ -55,10 +55,20 @@ router.put('/:id', async (req, res) => {
   try {
     const serviceConfig = await Service.findOne();
     const totalCost = calculatePrice(req.body, serviceConfig);
+    const assignedCleaners = Array.isArray(req.body.assignedCleaners)
+      ? req.body.assignedCleaners
+      : req.body.assignedCleaner
+        ? [req.body.assignedCleaner]
+        : [];
 
     const updatedBooking = await Booking.findByIdAndUpdate(
       req.params.id,
-      { ...req.body, totalCost },
+      {
+        ...req.body,
+        assignedCleaners,
+        assignedCleaner: assignedCleaners,
+        totalCost
+      },
       { new: true }
     );
 

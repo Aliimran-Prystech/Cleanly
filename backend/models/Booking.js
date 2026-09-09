@@ -15,7 +15,8 @@ const BookingSchema = new mongoose.Schema({
   bookingDate: { type: Date, required: true },
   timeSlot: { type: String, required: true },
   totalCost: { type: Number, required: true },
-  assignedCleaner: { type: mongoose.Schema.Types.ObjectId, ref: 'Cleaner', default: null },
+  assignedCleaner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cleaner' }],
+  assignedCleaners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cleaner' }],
   status: { type: String, enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' }
 }, { timestamps: true });
 
