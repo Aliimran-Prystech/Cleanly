@@ -12,6 +12,7 @@ import Footer from "./components/Footer";
 import Auth from "./components/Auth";
 import Dashboard from "./components/Dashboard";
 import Booking from "./components/Booking";
+import FAQ from "./components/FAQ";
 
 const Home = ({ isLoggedIn, isAdmin, handleLogout }) => (
   <main className="home-layout">
@@ -21,6 +22,7 @@ const Home = ({ isLoggedIn, isAdmin, handleLogout }) => (
     <HowItWorks />
     <Testimonials />
     <CleaningServices />
+    <FAQ />
     <BottomCTA />
   </main>
 );

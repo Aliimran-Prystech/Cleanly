@@ -1,8 +1,6 @@
 import "../styles/components/CleaningServices.scss";
 
 const CleaningServices = () => {
-
-    
   const livingRoomServices = [
     "Cleaning and highrise dusting",
     "Furniture Dusting/Vacuuming",
@@ -40,7 +38,7 @@ const CleaningServices = () => {
   ];
 
   return (
-    <section className="cleaning-services">
+    <section className="cleaning-services" id="services">
       {/* Living Room */}
       <div className="cleaning-services__row">
         <div className="cleaning-services__image">

@@ -28,6 +28,12 @@ const addonValues = {
 };
 
 const getToday = () => new Date().toISOString().slice(0, 10);
+const formatBookingDate = (value) => {
+  if (!value) return "Select a date";
+
+  const [year, month, day] = value.split("-");
+  return `${month}/${day}/${year}`;
+};
 
 const Booking = ({ isLoggedIn = false, handleLogout }) => {
   const navigate = useNavigate();
@@ -505,7 +511,7 @@ const Booking = ({ isLoggedIn = false, handleLogout }) => {
 
             <div className="summary-item">
               <span>▦</span>
-              <p>Wed. 09/09/2026</p>
+              <p>{formatBookingDate(bookingDate)}</p>
             </div>
 
             <div className="summary-item">
