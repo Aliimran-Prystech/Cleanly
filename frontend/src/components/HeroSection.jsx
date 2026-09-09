@@ -1,6 +1,6 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/components/HeroSection.scss";
 
-import { useNavigate } from "react-router-dom";
 
 const HeroSection = () => {
 

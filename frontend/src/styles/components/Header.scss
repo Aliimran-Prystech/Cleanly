@@ -86,11 +86,33 @@
     }
   }
 
-  // Book a Cleaning Button (Cyan Solid)
+  &__book-btn,
+  &__login-btn {
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  // Book button
   &__book-btn {
     border: 1px solid #54aabd !important;
     background-color: #54aabd !important;
     color: $white !important;
+
+    // &:hover {
+    //   background-color: darken($primary-color, 8%);
+    // }
+  }
+
+  &__phone {
+    color: #212529;
+    font-family: Helvetica, sans-serif;
+    font-size: 22px;
+    font-weight: bold;
+    line-height: 1.5;
+    text-decoration: none;
+    white-space: nowrap;
 
     &:hover {
       background-color: color.adjust(#54aabd, $lightness: -6%) !important;
@@ -130,9 +152,9 @@
     height: 40px;
 
     background-color: transparent;
-    border: 1px solid #d1d5db;
+    border: 2px solid #41403d;
     border-radius: 6px;
-
+    padding-right: 8px;
     cursor: pointer;
 
     flex-direction: column;
@@ -148,6 +170,10 @@
       height: 2px;
       background-color: $dark-color;
       transition: all 0.3s ease;
+    }
+
+    &:hover {
+      background-color: #fff;
     }
   }
 
@@ -205,6 +231,14 @@
         max-height: 450px;
         opacity: 1;
       }
+
+      .header__book-btn {
+        color: #fff;
+      }
+
+      &:hover .header__book-btn {
+        color: #fff;
+      }
     }
 
     &__mobile-nav {
@@ -232,11 +266,14 @@
 
       .header__book-btn,
       .header__login-btn {
-        width: 100%;
-        max-width: 240px;
-        margin-top: 12px;
-        height: 42px;
-        font-size: 14px;
+        width: 185px;
+        margin-top: 10px;
+        min-height: 44px;
+        text-align: center;
+      }
+
+      .header__login-btn {
+        width: 115px;
       }
     }
   }

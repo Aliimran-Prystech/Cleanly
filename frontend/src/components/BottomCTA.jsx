@@ -1,6 +1,10 @@
+import { useNavigate } from "react-router-dom";
 import "../styles/components/BottomCTA.scss";
 
 const BottomCTA = () => {
+
+  const navigate = useNavigate();
+
   return (
     <section className="bottom-cta">
       <div className="bottom-cta__container">
@@ -16,7 +20,7 @@ const BottomCTA = () => {
 
           <input type="text" placeholder="Zip Code" />
 
-          <button type="submit">
+          <button type="submit" onClick={() => navigate('/booking')}>
             Continue <span>›</span>
           </button>
         </form>
