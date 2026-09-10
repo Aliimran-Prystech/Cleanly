@@ -157,7 +157,11 @@ const Dashboard = ({ isLoggedIn = true, handleLogout }) => {
       setBookings((current) => current.filter((booking) => getId(booking) !== bookingId));
     } catch (deleteError) {
       console.error('Booking deletion failed:', deleteError);
-      setError('Unable to delete this booking.');
+      if (deleteError.response?.status === 401 || deleteError.response?.status === 403) {
+        setError(deleteError.response.data?.message || 'You do not have permission to delete this booking.');
+      } else {
+        setError(deleteError.response?.data?.message || 'Unable to delete this booking.');
+      }
     }
   };
 

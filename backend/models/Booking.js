@@ -1,6 +1,14 @@
 const mongoose = require('mongoose');
 
+const ProblemReportSchema = new mongoose.Schema({
+  subject: { type: String, required: true, trim: true, maxlength: 120 },
+  description: { type: String, required: true, trim: true, maxlength: 2000 },
+  status: { type: String, enum: ['Open', 'In Progress', 'Resolved'], default: 'Open' },
+  createdAt: { type: Date, default: Date.now }
+}, { _id: true });
+
 const BookingSchema = new mongoose.Schema({
+  userId: { type: mongoose.Schema.Types.ObjectId, ref: 'User', index: true },
   customerName: { type: String, required: true },
   customerEmail: { type: String, required: true },
   customerPhone: { type: String, required: true }, 
@@ -17,7 +25,8 @@ const BookingSchema = new mongoose.Schema({
   totalCost: { type: Number, required: true },
   assignedCleaner: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cleaner' }],
   assignedCleaners: [{ type: mongoose.Schema.Types.ObjectId, ref: 'Cleaner' }],
-  status: { type: String, enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' }
+  status: { type: String, enum: ['Pending', 'Confirmed', 'Completed', 'Cancelled'], default: 'Pending' },
+  problemReports: [ProblemReportSchema]
 }, { timestamps: true });
 
 module.exports = mongoose.model('Booking', BookingSchema);

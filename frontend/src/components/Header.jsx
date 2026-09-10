@@ -37,6 +37,7 @@ const Header = ({ isLoggedIn, isAdmin = false, onLogout }) => {
           <nav className="header__nav">
             <a href="#how-it-works">How It Works</a>
             <a href="#services">Our Services</a>
+            {isLoggedIn && !isAdmin && <Link to="/recent-bookings">Recent Bookings</Link>}
             {isAdmin && <Link to="/dashboard">Dashboard</Link>}
           </nav>
 
@@ -75,6 +76,11 @@ const Header = ({ isLoggedIn, isAdmin = false, onLogout }) => {
           <a href="#services" onClick={() => setIsMenuOpen(false)}>
             Our Services
           </a>
+          {isLoggedIn && !isAdmin && (
+            <Link to="/recent-bookings" onClick={() => setIsMenuOpen(false)}>
+              Recent Bookings
+            </Link>
+          )}
           {isAdmin && (
             <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
               Dashboard

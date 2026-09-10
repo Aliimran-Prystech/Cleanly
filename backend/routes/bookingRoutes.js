@@ -1,4 +1,5 @@
 const express = require('express');
+const mongoose = require('mongoose');
 const router = express.Router();
 const Booking = require('../models/Booking');
 const Service = require('../models/Service');
@@ -32,11 +33,59 @@ router.post('/create', verifyToken, async (req, res) => {
 
     const totalCost = calculatePrice(req.body, serviceConfig);
 
-    const booking = new Booking({ ...req.body, totalCost });
+    const booking = new Booking({
+      ...req.body,
+      userId: req.user.id,
+      totalCost
+    });
     await booking.save();
 
     res.status(201).json({ success: true, booking });
   } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.get('/mine', verifyToken, async (req, res) => {
+  try {
+    const bookings = await Booking.find({ userId: req.user.id })
+      .sort({ bookingDate: -1, createdAt: -1 });
+
+    res.json({ success: true, bookings });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+});
+
+router.post('/:id/problems', verifyToken, async (req, res) => {
+  try {
+    const { subject, description } = req.body;
+
+    if (!subject || !description) {
+      return res.status(400).json({
+        success: false,
+        message: 'Subject and description are required.'
+      });
+    }
+
+    const booking = await Booking.findOne({ _id: req.params.id, userId: req.user.id });
+    if (!booking) {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+
+    booking.problemReports.push({ subject, description });
+    await booking.save();
+
+    res.status(201).json({
+      success: true,
+      message: 'Problem reported successfully.',
+      report: booking.problemReports[booking.problemReports.length - 1]
+    });
+  } catch (error) {
+    if (error.name === 'CastError') {
+      return res.status(404).json({ success: false, message: 'Booking not found.' });
+    }
+
     res.status(500).json({ success: false, message: error.message });
   }
 });
@@ -83,6 +132,10 @@ router.put('/:id', verifyToken, requireAdmin, async (req, res) => {
 
 router.delete('/:id', verifyToken, requireAdmin, async (req, res) => {
   try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ success: false, message: 'Invalid booking ID.' });
+    }
+
     const deletedBooking = await Booking.findByIdAndDelete(req.params.id);
 
     if (!deletedBooking) {

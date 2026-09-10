@@ -13,6 +13,7 @@ import Auth from "./components/Auth";
 import Dashboard from "./components/Dashboard";
 import Booking from "./components/Booking";
 import FAQ from "./components/FAQ";
+import RecentBookings from "./components/RecentBookings";
 
 const Home = ({ isLoggedIn, isAdmin, handleLogout }) => (
   <main className="home-layout">
@@ -67,6 +68,10 @@ const App = () => {
         <Route
           path="/booking"
           element={<Booking isLoggedIn={isLoggedIn} handleLogout={handleLogout} />}
+        />
+        <Route
+          path="/recent-bookings"
+          element={isLoggedIn ? <RecentBookings isLoggedIn={isLoggedIn} handleLogout={handleLogout} /> : <Navigate to="/auth" replace />}
         />
       </Routes>
       <Footer />
