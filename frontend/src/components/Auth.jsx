@@ -1,5 +1,6 @@
 import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom'; 
+import { PhoneCall } from 'lucide-react';
 import axios from 'axios';
 import '../styles/components/Auth.scss';
 
@@ -64,7 +65,16 @@ const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
             alt="Cleanly"
           />
         </Link>
-        <div className="phone-number">800-710-8420</div>
+        <a
+          className="whatsapp-link"
+          href="https://wa.me/18007108420"
+          target="_blank"
+          rel="noreferrer"
+          aria-label="Contact Cleanly on WhatsApp"
+          title="Contact us on WhatsApp"
+        >
+          <PhoneCall size={22} strokeWidth={2.2} aria-hidden="true" />
+        </a>
       </header>
 
       <div className="auth-container">

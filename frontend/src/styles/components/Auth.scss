@@ -28,11 +28,28 @@ $border: #d9d9d9;
     }
   }
 
-  .phone-number {
-    color: #111;
-    font-size: 22px;
-    font-weight: 700;
-    letter-spacing: 0.2px;
+  .whatsapp-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    width: 42px;
+    height: 42px;
+    border-radius: 50%;
+    background: #25d366;
+    color: #fff;
+    transition: transform 0.2s ease, background-color 0.2s ease;
+
+    &:hover,
+    &:focus-visible {
+      background: #1da851;
+      color: #fff;
+      transform: translateY(-1px);
+    }
+
+    &:focus-visible {
+      outline: 3px solid rgba(37, 211, 102, 0.28);
+      outline-offset: 3px;
+    }
   }
 }
 
@@ -141,8 +158,9 @@ $border: #d9d9d9;
   .auth-header {
     min-height: 64px;
 
-    .phone-number {
-      font-size: 16px;
+    .whatsapp-link {
+      width: 38px;
+      height: 38px;
     }
   }
 
