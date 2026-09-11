@@ -37,11 +37,19 @@ const Header = ({ isLoggedIn, isAdmin = false, onLogout }) => {
           <nav className="header__nav">
             <a href="#how-it-works">How It Works</a>
             <a href="#services">Our Services</a>
-            {isLoggedIn && !isAdmin && <Link to="/recent-bookings">Recent Bookings</Link>}
-            {isAdmin && <Link to="/dashboard">Dashboard</Link>}
+            {isAdmin ? (
+              <Link to="/dashboard">Dashboard</Link>
+            ) : (
+              isLoggedIn && <Link to="/recent-bookings">Recent Bookings</Link>
+            )}
+            {/* {isAdmin && <Link to="/dashboard">Dashboard</Link>} */}
           </nav>
 
-          <button className="header__book-btn" type="button" onClick={() => navigate("/booking")}>
+          <button
+            className="header__book-btn"
+            type="button"
+            onClick={() => navigate("/booking")}
+          >
             Book a Cleaning
           </button>
 
@@ -76,16 +84,24 @@ const Header = ({ isLoggedIn, isAdmin = false, onLogout }) => {
           <a href="#services" onClick={() => setIsMenuOpen(false)}>
             Our Services
           </a>
-          {isLoggedIn && !isAdmin && (
-            <Link to="/recent-bookings" onClick={() => setIsMenuOpen(false)}>
-              Recent Bookings
-            </Link>
-          )}
-          {isAdmin && (
+
+          {isAdmin ? (
             <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
               Dashboard
             </Link>
+          ) : (
+            isLoggedIn && (
+              <Link to="/recent-bookings" onClick={() => setIsMenuOpen(false)}>
+                Recent Bookings
+              </Link>
+            )
           )}
+
+          {/* {isAdmin && (
+            <Link to="/dashboard" onClick={() => setIsMenuOpen(false)}>
+              Dashboard
+            </Link>
+          )} */}
 
           <button
             className="header__book-btn"
