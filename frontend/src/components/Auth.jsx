@@ -1,16 +1,16 @@
-import { useState } from 'react';
-import { useNavigate, Link } from 'react-router-dom'; 
-import { PhoneCall } from 'lucide-react';
-import axios from 'axios';
-import '../styles/components/Auth.scss';
+import { useState } from "react";
+import { useNavigate, Link } from "react-router-dom";
+import { PhoneCall } from "lucide-react";
+import axios from "axios";
+import "../styles/components/Auth.scss";
 
 const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
   const [isLogin, setIsLogin] = useState(true);
   const [formData, setFormData] = useState({
-    email: '',
-    password: ''
+    email: "",
+    password: "",
   });
-  const [error, setError] = useState('');
+  const [error, setError] = useState("");
   const [loading, setLoading] = useState(false);
 
   const navigate = useNavigate();
@@ -18,38 +18,44 @@ const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
   const handleInputChange = (e) => {
     setFormData({
       ...formData,
-      [e.target.name]: e.target.value
+      [e.target.name]: e.target.value,
     });
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-    setError('');
+    setError("");
     setLoading(true);
 
-    const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    // const endpoint = isLogin ? '/api/auth/login' : '/api/auth/register';
+    const endpoint = isLogin ? "/auth/login" : "/auth/register";
 
     try {
-      const response = await axios.post(`http://localhost:5000${endpoint}`, formData);
+      const response = await axios.post(
+        `https://cleanly-production.up.railway.app${endpoint}`,
+        formData,
+      );
       const data = response.data;
 
       if (isLogin) {
         if (data.token) {
-            localStorage.setItem('token', data.token);
-          localStorage.setItem('user', JSON.stringify(data.user));
+          localStorage.setItem("token", data.token);
+          localStorage.setItem("user", JSON.stringify(data.user));
         }
-        
+
         // Safely invoke the prop
         setIsLoggedIn?.(true);
         setCurrentUser?.(data.user);
-        
-        navigate('/');
-        } else {
-        alert('Account created successfully! Please sign in.');
+
+        navigate("/");
+      } else {
+        alert("Account created successfully! Please sign in.");
         setIsLogin(true);
       }
     } catch (err) {
-      const message = err.response?.data?.message || 'Something went wrong. Please try again.';
+      const message =
+        err.response?.data?.message ||
+        "Something went wrong. Please try again.";
       setError(message);
     } finally {
       setLoading(false);
@@ -82,20 +88,20 @@ const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
           <div className="auth-tabs">
             <button
               type="button"
-              className={`tab-btn ${isLogin ? 'active' : ''}`}
+              className={`tab-btn ${isLogin ? "active" : ""}`}
               onClick={() => {
                 setIsLogin(true);
-                setError('');
+                setError("");
               }}
             >
               Login
             </button>
             <button
               type="button"
-              className={`tab-btn ${!isLogin ? 'active' : ''}`}
+              className={`tab-btn ${!isLogin ? "active" : ""}`}
               onClick={() => {
                 setIsLogin(false);
-                setError('');
+                setError("");
               }}
             >
               Sign Up
@@ -128,7 +134,11 @@ const Auth = ({ setIsLoggedIn, setCurrentUser }) => {
             </div>
 
             <button type="submit" className="submit-btn" disabled={loading}>
-              {loading ? 'Processing...' : isLogin ? 'Sign In' : 'Create Account'}
+              {loading
+                ? "Processing..."
+                : isLogin
+                  ? "Sign In"
+                  : "Create Account"}
             </button>
           </form>
         </div>
