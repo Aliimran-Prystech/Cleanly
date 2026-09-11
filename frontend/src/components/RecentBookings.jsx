@@ -5,7 +5,7 @@ import { useNavigate } from "react-router-dom";
 import Header from "./Header";
 import "../styles/components/RecentBookings.scss";
 
-const API_BASE_URL = "http://localhost:5000/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL;
 
 const formatDate = (value) => {
   if (!value) return "Date unavailable";
